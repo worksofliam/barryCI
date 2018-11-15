@@ -88,7 +88,7 @@ app.post('/build/:id', async (req, res) => {
       recentMessages.push(messageResult);
 
       if (!isRelease)
-        updateStatus(appInfo.repo, req.body.ref, (successful ? "success" : "failure"), "Build " + (successful ? "successful" : "failed") + '.');
+        updateStatus(appInfo.repo, req.body.ref, (successful ? "success" : "failure"), "Build " + (messageResult.successful ? "successful" : "failed") + '.');
     }
 
   } else {
@@ -118,6 +118,7 @@ async function updateStatus(repo, commit, status, text) {
       });
     } catch (error) {
       console.log('Did not update commit status on repo ' + repo + '.');
+      console.log(error);
     }
   }
 }
