@@ -90,4 +90,4 @@ configClass.setDefaults(require('./defaultConfig'));
 configClass.loadConfig('config.json');
 config = configClass.dataSet;
 
-app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`));
+app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
