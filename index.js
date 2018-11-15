@@ -1,10 +1,10 @@
 var config = {
-  port: 6123,
+  port: 80,
   repos: {
     1: {
       name: 'noxDB',
       localRepo: '/home/liama/noxdb',
-      buildLibrary: 'NOXDB'
+      parms: 'BIN_LIB=NOXDB'
     }
   }
 }
@@ -12,8 +12,9 @@ var config = {
 var recentMessages = [
   {
     project: 'buildSlave',
-    message: 'System loaded.',
-    successful: true
+    info: 'System loaded.',
+    successful: true,
+    timestamp: new Date().toLocaleString()
   }
 ];
 
@@ -22,41 +23,56 @@ const exec = util.promisify(require('child_process').exec);
 
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
 
 app.get('/builds', async (req, res) => {
   res.json(recentMessages);
 });
 
-app.get('/build/:id', async (req, res) => {
+app.post('/build/:id', async (req, res) => {
   var appID = req.params.id;
-  var app = config.repos[appID];
+  var appInfo = config.repos[appID];
 
-  if (app !== undefined) {
+  var info = req.body.after;
+
+  if (appInfo !== undefined) {
     var stdout, stderr;
     try {
-      var { stdout, stderr } = await exec('git pull', {cwd: app.localRepo });
-      var { stdout, stderr } = await exec('gmake', {cwd: app.localRepo });
+      var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
+      var { stdout, stderr } = await exec('gmake ' + appInfo.parms, {cwd: appInfo.localRepo });
       stderr = undefined; //No error?
     } catch (err) {
       stderr = err;
     }
 
+    if (stdout)
+      stdout = stdout.split(/(\r?\n)/g);
+
+    if (stderr.message !== undefined) {
+      info = stderr.message;
+    } else if (stderr) {
+      console.log(stderr);
+      stderr = stderr.split(/(\r?\n)/g);
+    }
+
+    var messageResult = {
+      project: appInfo.name,
+      info: info,
+      successful: false,
+      timestamp: new Date().toLocaleString()
+    }
+    
     if (stderr) {
-      recentMessages.push({
-        project: app.name,
-        message: 'Something about a release or commit ID here',
-        successful: false
-      });
+      messageResult.successful = false;
       res.json({success: false, stderr: stderr});
-      
     } else {
-      recentMessages.push({
-        project: app.name,
-        message: 'Something about a release or commit ID here',
-        successful: true
-      });
+      messageResult.successful = true;
       res.json({success: true, stdout: stdout});
     }
+
+    recentMessages.push(messageResult);
 
   } else {
     res.json({message: 'Local repo not found.'});
