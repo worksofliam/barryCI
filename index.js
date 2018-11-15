@@ -1,14 +1,3 @@
-var config = {
-  port: 6123,
-  repos: {
-    1: {
-      name: 'noxDB',
-      localRepo: '/home/liama/noxdb',
-      parms: 'BIN_LIB=NOXDB'
-    }
-  }
-}
-
 var recentMessages = [
   {
     project: 'buildSlave',
@@ -20,6 +9,10 @@ var recentMessages = [
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+
+var Config = require('./config');
+var configClass = new Config();
+var config;
 
 const express = require('express');
 const app = express();
@@ -83,5 +76,9 @@ app.post('/build/:id', async (req, res) => {
     res.json({message: 'Local repo not found.'});
   }
 });
+
+configClass.setDefaults(require('./defaultConfig'));
+configClass.loadConfig('config.json');
+config = configClass.dataSet;
 
 app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`));
