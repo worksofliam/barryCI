@@ -19,7 +19,6 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-var readlineSync = require('readline-sync');
 var github = require('octonode');
 var githubClient = undefined;
 
