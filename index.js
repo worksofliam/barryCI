@@ -3,7 +3,8 @@ var recentMessages = [
     project: 'buildSlave',
     info: 'System loaded.',
     successful: true,
-    timestamp: new Date().toLocaleString()
+    timestamp: new Date().toLocaleString(),
+    message: ""
   }
 ];
 
@@ -46,14 +47,19 @@ app.post('/build/:id', async (req, res) => {
         stderr = err;
       }
 
-      if (stdout)
+      console.log('Build finished for ' + appInfo.name + '.');
+
+      if (stdout) {
         stdout = stdout.split(/(\r?\n)/g);
+        stdout = stdout.filter(v=>v!=' ');
+      }
 
       if (typeof stderr === 'object') {
         stderr = stderr.message;
       } else if (stderr) {
         console.log(stderr);
         stderr = stderr.split(/(\r?\n)/g);
+        stderr = stderr.filter(v=>v!=' ');
       }
 
       var messageResult = {
