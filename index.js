@@ -19,6 +19,9 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+var github = require('octonode');
+var githubClient = undefined;
+
 app.use(bodyParser.json());
 
 app.get('/builds', async (req, res) => {
@@ -33,8 +36,12 @@ app.post('/build/:id', async (req, res) => {
   if (appInfo !== undefined) {
 
     if (req.body.ref === appInfo.ref || isRelease) {
-      res.json({message: 'Build for ' + appInfo.name + ' starting.'});
-      console.log('Build for ' + appInfo.name + ' starting.');
+      
+      if (!isRelease)
+        updateStatus(appInfo.repo, req.body.ref, "pending", "Building application");
+
+      res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+      console.log('Build for ' + appInfo.repo + ' starting.');
 
       var info = req.body.ref + ' - ' + req.body.after;
 
@@ -47,7 +54,7 @@ app.post('/build/:id', async (req, res) => {
         stderr = err;
       }
 
-      console.log('Build finished for ' + appInfo.name + '.');
+      console.log('Build finished for ' + appInfo.repo + '.');
 
       if (stdout) {
         stdout = stdout.split(/(\r?\n)/g);
@@ -63,7 +70,7 @@ app.post('/build/:id', async (req, res) => {
       }
 
       var messageResult = {
-        project: appInfo.name,
+        project: appInfo.repo,
         info: info,
         successful: false,
         timestamp: new Date().toLocaleString(),
@@ -79,6 +86,9 @@ app.post('/build/:id', async (req, res) => {
       }
 
       recentMessages.push(messageResult);
+
+      if (!isRelease)
+        updateStatus(appInfo.repo, req.body.ref, (successful ? "success" : "failure"), "Build " + (successful ? "successful" : "failed") + '.');
     }
 
   } else {
@@ -90,4 +100,19 @@ configClass.setDefaults(require('./defaultConfig'));
 configClass.loadConfig('config.json');
 config = configClass.dataSet;
 
+if (config.github.username !== "username") {
+  var githubClient = github.client(config.github);
+}
+
 app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
+
+function updateStatus(repo, commit, status, text) {
+  if (githubClient !== undefined) {
+    var ghrepo = client.repo(repo);
+    ghrepo.status(commit, {
+      "state": status,
+      "target_url": "https://github.com/" + repo,
+      "description": text
+    });
+  }
+}
