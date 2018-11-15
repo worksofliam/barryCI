@@ -94,11 +94,11 @@ router.post('/build/:id', async (req, res) => {
       if (stderr) {
         messageResult.successful = FAILED;
         messageResult.message = stderr;
-        messageResult.panel = 'success';
+        messageResult.panel = 'danger';
       } else {
         messageResult.successful = SUCCESSFUL;
         messageResult.message = stdout;
-        messageResult.panel = 'warning';
+        messageResult.panel = 'success';
       }
 
       buildMessages[appID + commit] = messageResult;
