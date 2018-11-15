@@ -10,7 +10,7 @@ html(lang='en')
     //Cannot defer
     script(src="https://cdn.rawgit.com/showdownjs/showdown/1.8.6/dist/showdown.min.js")
 
-    if name !== undefined
+    if project !== undefined
       title=project
     else
       title buildSlave
@@ -26,10 +26,10 @@ html(lang='en')
           a.navbar-brand buildSlave
         #bs-example-navbar-collapse-1.collapse.navbar-collapse
           ul.nav.navbar-nav
-            li
-              a(href='/add')
-                | Add build 
-                span.sr-only (current)
+            //- li
+            //-   a(href='/add')
+            //-     | Add build 
+            //-     span.sr-only (current)
     
     a(href="https://github.com/WorksOfBarry/buildSlave")
       img(style="position: absolute; top:0; right: 0; border: 0;", src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png", alt="Fork me on GitHub")
