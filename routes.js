@@ -1,4 +1,6 @@
 
+const exec = util.promisify(require('child_process').exec);
+
 var express = require('express'), router = express.Router();
 
 var ConfigClass = require('./config');

@@ -1,7 +1,6 @@
 //TODO: turn array into an object so we can reference specific builds
 
 const util = require('util');
-const exec = util.promisify(require('child_process').exec);
 
 var ConfigClass = require('./config');
 var config;
