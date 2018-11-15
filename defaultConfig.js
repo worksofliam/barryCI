@@ -1,10 +1,6 @@
 module.exports = {
     "port": 6123,
-    "github": {
-        "username": "username",
-        "password": "password",
-        "otp": "905f65badaddfa6a21230713651e776980951be2"
-    },
+    "github": "PERSONAL-ACCESS-TOKEN-HERE",
     "repos": {
         "1": {
             "repo": "WorksOfLiam/noxDB",

@@ -102,7 +102,7 @@ configClass.loadConfig('config.json');
 config = configClass.dataSet;
 
 if (config.github.username !== "username") {
-  githubClient = github.client(config.github);
+  var githubClient = github.client(config.github);
 }
 
 app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
