@@ -4,8 +4,14 @@ const exec = util.promisify(require('child_process').exec);
 
 var express = require('express'), router = express.Router();
 
+//**********************************************
+
 var ConfigClass = require('./config');
-var config = ConfigClass.dataSet;
+var Config = new ConfigClass();
+Config.loadConfig('config.json');
+var config = Config.dataSet;
+
+//**********************************************
 
 var github = require('octonode');
 var githubClient = undefined;
@@ -15,19 +21,17 @@ if (config.github.username !== "username") {
   githubClient = github.client(config.github);
 }
 
+//**********************************************
+
+var buildMessagesConfig = new ConfigClass();
+buildMessagesConfig.loadConfig('buildMessages.json');
+var buildMessages = buildMessagesConfig.dataSet;
+
+//**********************************************
+
 const IN_PROGRESS = 0, FAILED = 1, SUCCESSFUL = 2;
 
-var buildMessages = {
-  'init0': {
-    project: 'buildSlave',
-    commit: '0',
-    ref: '0',
-    successful: true,
-    timestamp: new Date().toLocaleString(),
-    message: "",
-    panel: 'warning'
-  }
-};
+//**********************************************
 
 router.get('/result/:appID/:commit', async (req, res) => {
   var id = req.params.appID;
@@ -68,7 +72,7 @@ router.post('/build/:id', async (req, res) => {
         commit: commit,
         status: IN_PROGRESS,
         timestamp: new Date().toLocaleString(),
-        message: '',
+        message: 'Building application.',
         panel: 'warning'
       }
 
@@ -101,10 +105,11 @@ router.post('/build/:id', async (req, res) => {
         messageResult.panel = 'success';
       }
 
-      buildMessages[appID + commit] = messageResult;
-
       if (!isRelease)
         updateStatus(appInfo.repo, appID, commit, (messageResult.successful == SUCCESSFUL ? "success" : "failure"), "Build " + (messageResult.successful == SUCCESSFUL ? "successful" : "failed") + '.');
+
+      buildMessages[appID + commit] = messageResult;
+      await buildMessagesConfig.saveConfigAsync();
     }
 
   } else {

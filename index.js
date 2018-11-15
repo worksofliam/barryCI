@@ -1,18 +1,15 @@
-//TODO: turn array into an object so we can reference specific builds
-
-const util = require('util');
 
 var ConfigClass = require('./config');
-var config;
 
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
-ConfigClass.constructor();
-ConfigClass.setDefaults(require('./defaultConfig'));
-ConfigClass.loadConfig('config.json');
-config = ConfigClass.dataSet;
+var Config = new ConfigClass();
+Config.setDefaults(require('./defaultConfig'));
+
+Config.loadConfig('config.json');
+var config = Config.dataSet;
 
 app.use(bodyParser.json());
 app.set('view engine', 'pug');
