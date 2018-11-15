@@ -1,5 +1,5 @@
 var config = {
-  port: 80,
+  port: 6123,
   repos: {
     1: {
       name: 'noxDB',
@@ -41,6 +41,8 @@ app.post('/build/:id', async (req, res) => {
 
     res.json({message: 'Build for ' + appInfo.name + ' starting.'});
 
+    console.log('Build for ' + appInfo.name + ' starting.');
+
     var stdout, stderr;
     try {
       var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
@@ -50,10 +52,12 @@ app.post('/build/:id', async (req, res) => {
       stderr = err;
     }
 
+    console.log('Build finished for ' + appInfo.name + '.');
+
     if (stdout)
       stdout = stdout.split(/(\r?\n)/g);
 
-    if (stderr.message !== undefined) {
+    if (typeof stderr === 'object') {
       info = stderr.message;
     } else if (stderr) {
       console.log(stderr);
