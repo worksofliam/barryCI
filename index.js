@@ -1,3 +1,4 @@
+//TODO: turn array into an object so we can reference specific builds
 var recentMessages = [
   {
     project: 'buildSlave',
@@ -23,6 +24,8 @@ var github = require('octonode');
 var githubClient = undefined;
 
 app.use(bodyParser.json());
+
+//TODO: eventually move the routes to a routes.js file
 
 app.get('/builds', async (req, res) => {
   res.json(recentMessages);
@@ -102,7 +105,7 @@ configClass.loadConfig('config.json');
 config = configClass.dataSet;
 
 if (config.github.username !== "username") {
-  var githubClient = github.client(config.github);
+  githubClient = github.client(config.github);
 }
 
 app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
