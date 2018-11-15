@@ -6,7 +6,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "octonode": "^0.9.5"
+    "octonode": "^0.9.5",
+    "readline-sync": "^1.4.9"
   },
   "devDependencies": {},
   "scripts": {

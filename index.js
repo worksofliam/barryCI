@@ -19,6 +19,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+var readlineSync = require('readline-sync');
 var github = require('octonode');
 var githubClient = undefined;
 
@@ -32,18 +33,19 @@ app.post('/build/:id', async (req, res) => {
   var appID = req.params.id;
   var appInfo = config.repos[appID];
   var isRelease = (req.body.action === "release");
+  var commit = req.body.after;
 
   if (appInfo !== undefined) {
 
     if (req.body.ref === appInfo.ref || isRelease) {
       
       if (!isRelease)
-        updateStatus(appInfo.repo, req.body.ref, "pending", "Building application");
+        updateStatus(appInfo.repo, commit, "pending", "Building application");
 
       res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
       console.log('Build for ' + appInfo.repo + ' starting.');
 
-      var info = req.body.ref + ' - ' + req.body.after;
+      var info = req.body.ref + ' - ' + commit;
 
       var stdout, stderr;
       try {
@@ -88,7 +90,7 @@ app.post('/build/:id', async (req, res) => {
       recentMessages.push(messageResult);
 
       if (!isRelease)
-        updateStatus(appInfo.repo, req.body.ref, (successful ? "success" : "failure"), "Build " + (messageResult.successful ? "successful" : "failed") + '.');
+        updateStatus(appInfo.repo, commit, (messageResult.successful ? "success" : "failure"), "Build " + (messageResult.successful ? "successful" : "failed") + '.');
     }
 
   } else {
@@ -101,7 +103,7 @@ configClass.loadConfig('config.json');
 config = configClass.dataSet;
 
 if (config.github.username !== "username") {
-  var githubClient = github.client(config.github);
+  githubClient = github.client(config.github);
 }
 
 app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
@@ -109,9 +111,8 @@ app.listen(config.port, () => console.log(`buildSave listening on port ${config.
 async function updateStatus(repo, commit, status, text) {
   if (githubClient !== undefined) {
     var ghrepo = githubClient.repo(repo);
-    var status = util.promisify(ghrepo.status);
     try {
-      await status(commit, {
+      await ghrepo.statusAsync(commit, {
         "state": status,
         "target_url": "https://github.com/" + repo,
         "description": text
