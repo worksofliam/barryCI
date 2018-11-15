@@ -106,13 +106,18 @@ if (config.github.username !== "username") {
 
 app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
 
-function updateStatus(repo, commit, status, text) {
+async function updateStatus(repo, commit, status, text) {
   if (githubClient !== undefined) {
-    var ghrepo = client.repo(repo);
-    ghrepo.status(commit, {
-      "state": status,
-      "target_url": "https://github.com/" + repo,
-      "description": text
-    });
+    var ghrepo = githubClient.repo(repo);
+    var status = util.promisify(ghrepo.status);
+    try {
+      await status(commit, {
+        "state": status,
+        "target_url": "https://github.com/" + repo,
+        "description": text
+      });
+    } catch (error) {
+      console.log('Did not update commit status on repo ' + repo + '.');
+    }
   }
 }
