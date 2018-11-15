@@ -116,7 +116,7 @@ async function updateStatus(repo, appID, commit, status, text) {
     try {
       await ghrepo.statusAsync(commit, {
         "state": status,
-        "target_url": config.address + ':' + config.port + '/' + appID + '/' + commit,
+        "target_url": config.address + ':' + config.port + '/result/' + appID + '/' + commit,
         "description": text
       });
     } catch (error) {
