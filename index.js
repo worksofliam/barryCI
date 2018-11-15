@@ -36,6 +36,7 @@ app.get('/build/:id', async (req, res) => {
     try {
       var { stdout, stderr } = await exec('git pull', {cwd: app.localRepo });
       var { stdout, stderr } = await exec('gmake', {cwd: app.localRepo });
+      stderr = undefined; //No error?
     } catch (err) {
       stderr = err;
     }
