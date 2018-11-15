@@ -38,6 +38,9 @@ app.post('/build/:id', async (req, res) => {
   var info = req.body.after;
 
   if (appInfo !== undefined) {
+
+    res.json({message: 'Build for ' + appInfo.name + ' starting.'});
+
     var stdout, stderr;
     try {
       var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
@@ -66,10 +69,8 @@ app.post('/build/:id', async (req, res) => {
     
     if (stderr) {
       messageResult.successful = false;
-      res.json({success: false, stderr: stderr});
     } else {
       messageResult.successful = true;
-      res.json({success: true, stdout: stdout});
     }
 
     recentMessages.push(messageResult);
