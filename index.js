@@ -27,50 +27,53 @@ app.get('/builds', async (req, res) => {
 app.post('/build/:id', async (req, res) => {
   var appID = req.params.id;
   var appInfo = config.repos[appID];
-
-  var info = req.body.after;
+  var isRelease = (req.body.action === "release");
 
   if (appInfo !== undefined) {
 
-    res.json({message: 'Build for ' + appInfo.name + ' starting.'});
+    if (req.body.ref === appInfo.ref || isRelease) {
+      res.json({message: 'Build for ' + appInfo.name + ' starting.'});
+      console.log('Build for ' + appInfo.name + ' starting.');
 
-    console.log('Build for ' + appInfo.name + ' starting.');
+      var info = req.body.ref + ' - ' + req.body.after;
 
-    var stdout, stderr;
-    try {
-      var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
-      var { stdout, stderr } = await exec('gmake ' + appInfo.parms, {cwd: appInfo.localRepo });
-      stderr = undefined; //No error?
-    } catch (err) {
-      stderr = err;
+      var stdout, stderr;
+      try {
+        var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
+        var { stdout, stderr } = await exec('gmake ' + appInfo.makeParms, {cwd: appInfo.localRepo });
+        stderr = undefined; //No error?
+      } catch (err) {
+        stderr = err;
+      }
+
+      if (stdout)
+        stdout = stdout.split(/(\r?\n)/g);
+
+      if (typeof stderr === 'object') {
+        stderr = stderr.message;
+      } else if (stderr) {
+        console.log(stderr);
+        stderr = stderr.split(/(\r?\n)/g);
+      }
+
+      var messageResult = {
+        project: appInfo.name,
+        info: info,
+        successful: false,
+        timestamp: new Date().toLocaleString(),
+        message: ''
+      }
+      
+      if (stderr) {
+        messageResult.successful = false;
+        messageResult.message = stderr; 
+      } else {
+        messageResult.successful = true;
+        messageResult.message = stdout; 
+      }
+
+      recentMessages.push(messageResult);
     }
-
-    console.log('Build finished for ' + appInfo.name + '.');
-
-    if (stdout)
-      stdout = stdout.split(/(\r?\n)/g);
-
-    if (typeof stderr === 'object') {
-      info = stderr.message;
-    } else if (stderr) {
-      console.log(stderr);
-      stderr = stderr.split(/(\r?\n)/g);
-    }
-
-    var messageResult = {
-      project: appInfo.name,
-      info: info,
-      successful: false,
-      timestamp: new Date().toLocaleString()
-    }
-    
-    if (stderr) {
-      messageResult.successful = false;
-    } else {
-      messageResult.successful = true;
-    }
-
-    recentMessages.push(messageResult);
 
   } else {
     res.json({message: 'Local repo not found.'});

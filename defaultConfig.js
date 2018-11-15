@@ -3,8 +3,9 @@ module.exports = {
     "repos": {
         "1": {
             "name": "noxDB",
+            "ref": "refs/heads/master",
             "localRepo": "/home/liama/noxdb",
-            "parms": "BIN_LIB=NOXDB"
+            "makeParms": "BIN_LIB=NOXDB"
         }
     }
 }
