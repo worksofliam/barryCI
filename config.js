@@ -1,14 +1,14 @@
 var fs = require('fs');
 
-module.exports = class Config {
+module.exports = {
     constructor() {
         this.lastPath = "";
         this.dataSet = {};
-    }
+    },
 
     setDefaults(obj) {
         this.dataSet = obj;
-    }
+    },
 
     loadConfig(path) {
         if (PathExists(path)) {
@@ -18,7 +18,7 @@ module.exports = class Config {
             this.saveConfig(path);
         }
         this.lastPath = path;
-    }
+    },
 
     saveConfig(path) {
         if (path === undefined) path = this.lastPath;

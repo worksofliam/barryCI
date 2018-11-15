@@ -1,4 +1,5 @@
 module.exports = {
+    "address": "http://localhost",
     "port": 6123,
     "github": "PERSONAL-ACCESS-TOKEN-HERE",
     "repos": {
