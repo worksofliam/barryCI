@@ -51,7 +51,7 @@ app.post('/build/:id', async (req, res) => {
 
       if (stdout) {
         stdout = stdout.split(/(\r?\n)/g);
-        stdout = stdout.filter(v=>v!=' ');
+        stdout = stdout.filter(v=>v!='\n');
       }
 
       if (typeof stderr === 'object') {
@@ -59,7 +59,7 @@ app.post('/build/:id', async (req, res) => {
       } else if (stderr) {
         console.log(stderr);
         stderr = stderr.split(/(\r?\n)/g);
-        stderr = stderr.filter(v=>v!=' ');
+        stderr = stderr.filter(v=>v!='\n');
       }
 
       var messageResult = {
