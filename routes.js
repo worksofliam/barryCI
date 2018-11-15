@@ -54,7 +54,7 @@ router.post('/build/:id', async (req, res) => {
     if (req.body.ref === appInfo.ref || isRelease) {
       
       if (!isRelease)
-        updateStatus(appInfo.repo, commit, "pending", "Building application");
+        updateStatus(appInfo.repo, appID, commit, "pending", "Building application");
 
       res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
       console.log('Build for ' + appInfo.repo + ' starting.');
@@ -101,7 +101,7 @@ router.post('/build/:id', async (req, res) => {
       buildMessages[appID + commit] = messageResult;
 
       if (!isRelease)
-        updateStatus(appInfo.repo, commit, (messageResult.successful == SUCCESSFUL ? "success" : "failure"), "Build " + (messageResult.successful == SUCCESSFUL ? "successful" : "failed") + '.');
+        updateStatus(appInfo.repo, appID, commit, (messageResult.successful == SUCCESSFUL ? "success" : "failure"), "Build " + (messageResult.successful == SUCCESSFUL ? "successful" : "failed") + '.');
     }
 
   } else {
@@ -110,13 +110,13 @@ router.post('/build/:id', async (req, res) => {
 });
 
 
-async function updateStatus(repo, commit, status, text) {
+async function updateStatus(repo, appID, commit, status, text) {
   if (githubClient !== undefined) {
     var ghrepo = githubClient.repo(repo);
     try {
       await ghrepo.statusAsync(commit, {
         "state": status,
-        "target_url": "https://github.com/" + repo,
+        "target_url": config.address + ':' + config.port + '/' + appID + '/' + commit,
         "description": text
       });
     } catch (error) {
