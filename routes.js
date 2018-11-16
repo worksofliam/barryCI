@@ -1,6 +1,7 @@
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const crypto = require('crypto');
 
 var express = require('express'), router = express.Router();
 
@@ -57,59 +58,77 @@ router.post('/build/:id', async (req, res) => {
   var commit = req.body.after;
 
   if (appInfo !== undefined) {
+    var isAllowed = true;
+    var secret = appInfo.secret || "";
+    var request = JSON.stringify(req.body);
 
-    if (req.body.ref === appInfo.ref || isRelease) {
-      
-      if (!isRelease)
-        updateStatus(appInfo.repo, appID, commit, "pending", "Building application");
+    //If key is provided in header, check against local key.
+    if (req.headers['x-hub-signature'] !== undefined) {
+      var signed = 'sha1=' + crypto.createHmac('sha1', secret).update(request).digest('hex');
+      var calculated_signature = new Buffer(signed);
 
-      res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
-      console.log('Build for ' + appInfo.repo + ' starting.');
+      if (new Buffer(req.headers['x-hub-signature']).equals(calculated_signature) === false) {
+        console.log('X-Hub-Signature does not match request signature.');
+        isAllowed = false;
+      } 
+    }
 
-      var messageResult = {
-        project: appInfo.repo,
-        ref: req.body.ref,
-        commit: commit,
-        status: IN_PROGRESS,
-        timestamp: new Date().toLocaleString(),
-        message: 'Building application.',
-        panel: 'warning'
+    if (isAllowed) {
+      if (req.body.ref === appInfo.ref || isRelease) {
+        
+        if (!isRelease)
+          updateStatus(appInfo.repo, appID, commit, "pending", "Building application");
+
+        res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+        console.log('Build for ' + appInfo.repo + ' starting.');
+
+        var messageResult = {
+          project: appInfo.repo,
+          ref: req.body.ref,
+          commit: commit,
+          status: IN_PROGRESS,
+          timestamp: new Date().toLocaleString(),
+          message: 'Building application.',
+          panel: 'warning'
+        }
+
+        buildMessages[appID + commit] = messageResult;
+
+        var stdout, stderr;
+        try {
+          var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
+          var { stdout, stderr } = await exec('gmake ' + appInfo.makeParms, {cwd: appInfo.localRepo });
+          stderr = undefined; //No error?
+        } catch (err) {
+          stderr = err;
+        }
+
+        console.log('Build finished for ' + appInfo.repo + '.');
+
+        if (typeof stderr === 'object') {
+          stderr = stderr.message;
+        } else if (stderr) {
+          console.log(stderr);
+        }
+        
+        if (stderr) {
+          messageResult.successful = FAILED;
+          messageResult.message = stderr;
+          messageResult.panel = 'danger';
+        } else {
+          messageResult.successful = SUCCESSFUL;
+          messageResult.message = stdout;
+          messageResult.panel = 'success';
+        }
+
+        if (!isRelease)
+          updateStatus(appInfo.repo, appID, commit, (messageResult.successful == SUCCESSFUL ? "success" : "failure"), "Build " + (messageResult.successful == SUCCESSFUL ? "successful" : "failed") + '.');
+
+        buildMessages[appID + commit] = messageResult;
+        await buildMessagesConfig.saveConfigAsync();
       }
-
-      buildMessages[appID + commit] = messageResult;
-
-      var stdout, stderr;
-      try {
-        var { stdout, stderr } = await exec('git pull', {cwd: appInfo.localRepo });
-        var { stdout, stderr } = await exec('gmake ' + appInfo.makeParms, {cwd: appInfo.localRepo });
-        stderr = undefined; //No error?
-      } catch (err) {
-        stderr = err;
-      }
-
-      console.log('Build finished for ' + appInfo.repo + '.');
-
-      if (typeof stderr === 'object') {
-        stderr = stderr.message;
-      } else if (stderr) {
-        console.log(stderr);
-      }
-      
-      if (stderr) {
-        messageResult.successful = FAILED;
-        messageResult.message = stderr;
-        messageResult.panel = 'danger';
-      } else {
-        messageResult.successful = SUCCESSFUL;
-        messageResult.message = stdout;
-        messageResult.panel = 'success';
-      }
-
-      if (!isRelease)
-        updateStatus(appInfo.repo, appID, commit, (messageResult.successful == SUCCESSFUL ? "success" : "failure"), "Build " + (messageResult.successful == SUCCESSFUL ? "successful" : "failed") + '.');
-
-      buildMessages[appID + commit] = messageResult;
-      await buildMessagesConfig.saveConfigAsync();
+    } else {
+      res.json({message: 'Secrets do not match.'});
     }
 
   } else {
