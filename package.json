@@ -1,5 +1,5 @@
 {
-  "name": "buildslave",
+  "name": "BuildAgent",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -15,9 +15,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/ileditor/buildslave.git"
+    "url": "git+ssh://git@bitbucket.org/ileditor/BuildAgent.git"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/ileditor/buildslave#readme"
+  "homepage": "https://bitbucket.org/ileditor/BuildAgent#readme"
 }

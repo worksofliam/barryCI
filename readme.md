@@ -1,14 +1,14 @@
-# buildSlave
+# BuildAgent
 
-buildSlave is a build server for IBM i (well, mainly tested for ILE applications) written in Node.js. The buildSlave needs to be exposed to the internet for builds to be triggered from GitHub.
+BuildAgent is a build server for IBM i (well, mainly tested for ILE applications) written in Node.js. The BuildAgent needs to be exposed to the internet for builds to be triggered from GitHub.
 
 ## Installation
 
-1. `git clone https://github.com/WorksOfBarry/buildSlave.git` to get the stuff.
+1. `git clone https://github.com/WorksOfBarry/BuildAgent.git` to get the stuff.
 2. `npm i` to install the dependencies.
 3. `node index` and then Control+C to stop the app. This will generate `config.json`.
 
-When running the buildSlave script, `pm2` is a good option.
+When running the BuildAgent script, `pm2` is a good option.
 
 ## Configuring the server
 
@@ -32,7 +32,7 @@ In `config.json`, you will see the `repos` object, this is a keyed list and each
 1. Clone the repo onto your IBM i: `git clone ...`
 2. Open `config.json` and add a new key to `repos`.
 3. Each repo object needs 4 items:
-  * `repo` - the orginisation and the repo name on GitHub (`WorksOfBarry/buildSlave`, `sitemule/noxdb`, etc)
+  * `repo` - the orginisation and the repo name on GitHub (`WorksOfBarry/BuildAgent`, `sitemule/noxdb`, etc)
   * `ref` - the reference to the branch you want to target. `refs/heads/master` is usually the `master` branch.
   * `localRepo` - the local path to the git repo. When the build happens, it will do a `git pull` before `gmake`.
   * `makeParms` - are extra parameters to be passed to `gmake`, for example `BIN_LIB=NOXDB`
