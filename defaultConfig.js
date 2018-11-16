@@ -7,7 +7,10 @@ module.exports = {
             "repo": "WorksOfLiam/noxDB",
             "ref": "refs/heads/master",
             "localRepo": "/home/liama/noxdb",
-            "makeParms": "BIN_LIB=NOXDB"
+            "makeParms": {
+                "push": "BIN_LIB=NOXDB",
+                "pr": "BIN_LIB=NOXDB_PR"
+            }
         }
     }
 }
