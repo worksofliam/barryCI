@@ -123,7 +123,7 @@ router.post('/push/:id', async (req, res) => {
 
         res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
-        var result = await buildLocal(appInfo.localDir, appInfo.makeParms.push, appID, appInfo.repo, req.body.ref, commit);
+        var result = await buildLocal(appInfo.localRepo, appInfo.makeParms.push, appID, appInfo.repo, req.body.ref, commit);
 
         updateStatus(appInfo.repo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
       }
