@@ -22,7 +22,7 @@ var github = require('octonode');
 var githubClient = undefined;
 var githubClient;
 
-if (config.github.username !== "username") {
+if (config.github !== "PERSONAL-ACCESS-TOKEN-HERE") {
   githubClient = github.client(config.github);
 }
 
