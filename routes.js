@@ -139,7 +139,7 @@ router.post('/push/:id', async (req, res) => {
 async function cloneRepo(httpsURI, repoName) {
 
   if (repoName.indexOf('/') >= 0)
-  repoName = repoName.split('/')[0];
+  repoName = repoName.split('/')[1];
 
   console.log('Clone for ' + repoName + ' PR starting.');
   var repoDir = await tmpDir();
