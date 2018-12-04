@@ -68,13 +68,15 @@ router.post('/push/:id', async (req, res) => {
 
     if (isAllowed) {
       if (req.body.ref === appInfo.ref) {
-        updateStatus(appInfo, appID, commit, "pending", "Building application");
-
         res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+
+        updateStatus(appInfo, appID, commit, "pending", "Building application");
 
         var result = await buildLocal(appInfo.localRepo, appInfo.makeParms.push, appID, appInfo.repo, req.body.ref, commit);
 
         updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+      } else {
+        res.json({message: 'Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref});
       }
     } else {
       res.json({message: 'Secrets do not match.'});
