@@ -235,7 +235,7 @@ async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
   appInfo.ref = data.ref || 'refs/heads/master';
-  appInfo.makefile = data.makefile || '';
+  appInfo.makefile = data.makefile;
   appInfo.make_parameters = data.make_parameters || [];
 
   if (appInfo.makefile !== undefined) {
