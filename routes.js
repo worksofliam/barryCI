@@ -239,7 +239,7 @@ async function addRepoSetup(appInfo) {
   appInfo.make_parameters = data.make_parameters || [];
 
   if (appInfo.makefile !== undefined) {
-    appInfo.parameters.push('-f', appInfo.makefile);
+    appInfo.make_parameters.push('-f', appInfo.makefile);
   }
 }
 
