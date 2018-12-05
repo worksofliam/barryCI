@@ -199,7 +199,7 @@ function execPromise(command, args, options) {
         reject(stderr);
       } else {
         stdout = undefined;
-        resolve(stdout, stderr);
+        resolve(stdout, 0);
       }
     });
   });
