@@ -73,10 +73,10 @@ router.post('/push/:id', async (req, res) => {
       }
     }
 
-    if (isAllowed) {
+    appInfo.repo = req.body.repository.full_name;
+    appInfo.clone_url = req.body.repository.clone_url;
 
-      appInfo.repo = req.body.repository.full_name;
-      appInfo.clone_url = req.body.repository.clone_url;
+    if (isAllowed) {
 
       res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
@@ -156,9 +156,14 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
   buildMessages[appID + commit] = messageResult;
 
-  var dir, stdout, stderr;
+  var command, stdout, stderr;
   try {
-    //stdout = await execPromise('git', ['pull'], { cwd: localDir });
+    if (appInfo.pre_make !== undefined) {
+      for (var i in appInfo.pre_make) {
+        command = appInfo.pre_make[i];
+        stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir });
+      }
+    }
     stdout = await execPromise('gmake', appInfo.make_parameters, { cwd: appInfo.repoDir });
     stderr = undefined; //No error?
   } catch (err) {
@@ -244,6 +249,8 @@ async function addRepoSetup(appInfo) {
   if (appInfo.makefile !== undefined) {
     appInfo.make_parameters.push('-f' + appInfo.makefile);
   }
+
+  appInfo.pre_make = data.pre_make;
 }
 
 module.exports = router;
