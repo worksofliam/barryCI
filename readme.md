@@ -14,9 +14,10 @@ When running the barryCI script, `pm2` is a good option.
 
 The only place you need to do any setup is in the `config.json` which is generated the first time you start the app.
 
-* `address` is the remote address that will be access from GitHub.
-* `port` is the port number for the app.
-* `repos` contains each environment that you want to be able to build (by key).
+* `address` - the remote address that will be access from GitHub.
+* `port` - the port number for the app.
+* `store_stdout` - if true, standard out will not be stored if successful. Standard error is always saved.
+* `repos` - contains each environment that you want to be able to build (by key).
 
 ## Configuring a build when a push happens
 
@@ -57,6 +58,9 @@ This JSON file will contain one object made up of the following attributes:
 
 * `makefile` - **optional**, the name of the makefile if it's not called `makefile`.
 * `make_parameters` - **optional**, an array of parameters passed into `gmake`.
+* `pre_make` - **optional** - an array of objects specifying commands to run before the build.
+  * `command` - **required** - the command (string) to be execute.
+  * `args` - **required** - an array of arguments.
 
 ```json
 {
@@ -66,7 +70,12 @@ This JSON file will contain one object made up of the following attributes:
 
 ```json
 {
-  "makefile": "Makefile.in",
+  "pre_make": [
+    {
+      "command": "./configure",
+      "args": []
+    }
+  ],
   "make_parameters": ["LIBRARY=KXMLSRV"]
 }
 ```
