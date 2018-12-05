@@ -126,8 +126,8 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
 
   var stdout, stderr;
   try {
-    var { stdout, stderr } = await execPromise('git', ['pull'], { cwd: localDir });
-    var { stdout, stderr } = await execPromise('gmake', [makeParms], { cwd: localDir });
+    stdout = await execPromise('git', ['pull'], { cwd: localDir });
+    stdout = await execPromise('gmake', [makeParms], { cwd: localDir });
     stderr = undefined; //No error?
   } catch (err) {
     stderr = err;
@@ -190,6 +190,7 @@ function execPromise(command, args, options) {
     });
 
     child.on('error', (data) => {
+      console.log('hard error:');
       console.log(data);
       stderr += data;
     });
@@ -198,8 +199,7 @@ function execPromise(command, args, options) {
       if (code !== 0) {
         reject(stderr);
       } else {
-        stdout = undefined;
-        resolve(stdout, 0);
+        resolve(stdout);
       }
     });
   });
