@@ -1,6 +1,6 @@
 
 const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const spawn = require('child_process').spawn;
 const crypto = require('crypto');
 const path = require('path');
 
@@ -67,7 +67,7 @@ router.post('/push/:id', async (req, res) => {
     }
 
     if (isAllowed) {
-      if (req.body.ref === appInfo.ref) {
+      if (req.body.ref === appInfo.ref || true) {
         res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
         updateStatus(appInfo, appID, commit, "pending", "Building application");
@@ -126,8 +126,8 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
 
   var stdout, stderr;
   try {
-    var { stdout, stderr } = await exec('git pull', { cwd: localDir });
-    var { stdout, stderr } = await exec('gmake ' + makeParms, { cwd: localDir });
+    var { stdout, stderr } = await execPromise('git', ['pull'], { cwd: localDir });
+    var { stdout, stderr } = await execPromise('gmake', [makeParms], { cwd: localDir });
     stderr = undefined; //No error?
   } catch (err) {
     stderr = err;
@@ -136,10 +136,10 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
   console.log('Build finished for ' + repo + '.');
 
   if (typeof stderr === 'object') {
-    stderr = stderr.message;
-  } else if (stderr) {
-    console.log(stderr);
+    stderr = stderr.message + '\n\r' + stderr.stack;
   }
+
+  console.log(stderr);
   
   if (stderr) {
     messageResult.status = FAILED;
@@ -174,6 +174,35 @@ async function updateStatus(appInfo, appID, commit, status, text) {
       console.log(error);
     }
   }
+}
+
+function execPromise(command, args, options) {
+  return new Promise((resolve, reject) => {
+    var stdout, stderr, success = true;
+    const child = spawn(command, args, options);
+
+    child.stdout.on('data', (data) => {
+      stdout += data;
+    });
+
+    child.stderr.on('data', (data) => {
+      stderr += data;
+    });
+
+    child.on('error', (data) => {
+      console.log(data);
+      stderr += data;
+    });
+
+    child.on('close', (code) => {
+      if (code !== 0) {
+        reject(stderr);
+      } else {
+        stdout = undefined;
+        resolve(success, stdout, stderr);
+      }
+    });
+  });
 }
 
 module.exports = router;
