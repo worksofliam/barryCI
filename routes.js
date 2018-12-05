@@ -67,7 +67,7 @@ router.post('/push/:id', async (req, res) => {
     }
 
     if (isAllowed) {
-      if (req.body.ref === appInfo.ref || true) {
+      if (req.body.ref === appInfo.ref) {
         res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
         updateStatus(appInfo, appID, commit, "pending", "Building application");
@@ -199,7 +199,7 @@ function execPromise(command, args, options) {
         reject(stderr);
       } else {
         stdout = undefined;
-        resolve(success, stdout, stderr);
+        resolve(stdout, stderr);
       }
     });
   });
