@@ -178,7 +178,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
 
 function execPromise(command, args, options) {
   return new Promise((resolve, reject) => {
-    var stdout, stderr, success = true;
+    var stdout = "", stderr = "";
     const child = spawn(command, args, options);
 
     child.stdout.on('data', (data) => {
