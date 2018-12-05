@@ -138,9 +138,9 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
   if (typeof stderr === 'object') {
     stderr = stderr.message + '\n\r' + stderr.stack;
   }
-
-  console.log(stderr);
   
+  console.log('Build finished for ' + repo + ': ' + (stderr ? "failed" : "successful"));
+
   if (stderr) {
     messageResult.status = FAILED;
     messageResult.message = stderr;
