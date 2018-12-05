@@ -80,15 +80,21 @@ router.post('/push/:id', async (req, res) => {
       try {
         appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
       } catch (error) {
+        console.log('----------------');
         console.log('Unable to clone repo: ' + appInfo.clone_url);
+        console.log(error);
+        console.log('----------------');
         appInfo.repoDir = undefined;
       }
 
       if (appInfo.repoDir !== undefined) {
         try {
           await addRepoSetup(appInfo);
-        } catch (err) {
+        } catch (error) {
+          console.log('----------------');
           console.log('No barryci.json file found in ' + appInfo.repo);
+          console.log(error);
+          console.log('----------------');
         }
 
         if (req.body.ref === appInfo.ref) {
@@ -156,7 +162,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
     stderr = err;
   }
   
-  console.log('Build finished for ' + repo + ': ' + (stderr ? "failed" : "successful"));
+  console.log('Build finished for ' + appInfo.repo + ': ' + (stderr ? "failed" : "successful"));
 
   if (typeof stderr === 'object') {
     stderr = stderr.message + '\n\r' + stderr.stack;
