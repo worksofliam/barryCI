@@ -1,5 +1,6 @@
 
 const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 const spawn = require('child_process').spawn;
 const crypto = require('crypto');
 const path = require('path');
@@ -8,6 +9,9 @@ var express = require('express'), router = express.Router();
 
 var tmp = require('tmp');
 var tmpDir = util.promisify(tmp.dir);
+
+var fs = require('fs');
+const readFileAsync = util.promisify(fs.readFile);
 
 //**********************************************
 
@@ -67,16 +71,35 @@ router.post('/push/:id', async (req, res) => {
     }
 
     if (isAllowed) {
-      if (req.body.ref === appInfo.ref) {
-        res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
-        updateStatus(appInfo, appID, commit, "pending", "Building application");
+      appInfo.repo = req.body.repository.full_name;
+      appInfo.clone_url = req.body.repository.clone_url;
 
-        var result = await buildLocal(appInfo.localRepo, appInfo.makeParms.push, appID, appInfo.repo, req.body.ref, commit);
+      res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
-        updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
-      } else {
-        res.json({message: 'Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref});
+      try {
+        appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
+      } catch (error) {
+        console.log('Unable to clone repo: ' + appInfo.clone_url);
+        appInfo.repoDir = undefined;
+      }
+
+      if (appInfo.repoDir !== undefined) {
+        try {
+          await addRepoSetup(appInfo);
+        } catch (err) {
+          console.log('No barryci.json file found in ' + appInfo.repo);
+        }
+
+        if (req.body.ref === appInfo.ref) {
+          updateStatus(appInfo, appID, commit, "pending", "Building application");
+
+          var result = await buildLocal(appInfo, appID, req.body.ref, commit);
+
+          updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+        } else {
+          console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
+        }
       }
     } else {
       res.json({message: 'Secrets do not match.'});
@@ -109,11 +132,11 @@ async function cloneRepo(httpsURI, repoName) {
   }
 }
 
-async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
+async function buildLocal(appInfo, appID, ref, commit) {
   
-  console.log('Build for ' + repo + ' starting.');
+  console.log('Build for ' + appInfo.repo + ' starting.');
   var messageResult = {
-    project: repo,
+    project: appInfo.repo,
     status: IN_PROGRESS,
     ref: ref,
     commit: commit,
@@ -124,10 +147,10 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
 
   buildMessages[appID + commit] = messageResult;
 
-  var stdout, stderr;
+  var dir, stdout, stderr;
   try {
-    stdout = await execPromise('git', ['pull'], { cwd: localDir });
-    stdout = await execPromise('gmake', [makeParms], { cwd: localDir });
+    //stdout = await execPromise('git', ['pull'], { cwd: localDir });
+    stdout = await execPromise('gmake', appInfo.make_parameters, { cwd: appInfo.repoDir });
     stderr = undefined; //No error?
   } catch (err) {
     stderr = err;
@@ -169,7 +192,6 @@ async function updateStatus(appInfo, appID, commit, status, text) {
       });
     } catch (error) {
       console.log('Did not update commit status on repo ' + appInfo.repo + ': ' + error.message);
-      console.log();
     }
   }
 }
@@ -201,6 +223,18 @@ function execPromise(command, args, options) {
       }
     });
   });
+}
+
+async function addRepoSetup(appInfo) {
+  var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
+
+  appInfo.ref = data.ref || 'refs/heads/master';
+  appInfo.makefile = data.makefile || '';
+  appInfo.make_parameters = data.make_parameters || [];
+
+  if (appInfo.makefile !== undefined) {
+    appInfo.parameters.push('-f', appInfo.makefile);
+  }
 }
 
 module.exports = router;
