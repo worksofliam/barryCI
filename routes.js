@@ -51,6 +51,9 @@ router.get('/result/:appID/:commit', async (req, res) => {
 
 router.post('/push/:id', async (req, res) => {
   var appID = req.params.id;
+  /**
+   * appInfo {<github>, <secret>, <ref>, <makefile>, <make_parameters>, <repo>, <clone_url>, <repoDir>}
+   */
   var appInfo = config.repos[appID];
   var commit = req.body.after;
 

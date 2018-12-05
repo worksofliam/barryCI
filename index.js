@@ -15,4 +15,4 @@ app.use(bodyParser.json());
 app.set('view engine', 'pug');
 
 app.use('/', require('./routes'));
-app.listen(config.port, () => console.log(`buildSave listening on port ${config.port}!`));
+app.listen(config.port, () => console.log(`barryCI listening on port ${config.port}!`));
