@@ -182,7 +182,10 @@ async function buildLocal(appInfo, appID, ref, commit) {
     messageResult.panel = 'danger';
   } else {
     messageResult.status = SUCCESSFUL;
-    messageResult.message = stdout;
+    if (config.store_stdout === true)
+      messageResult.message = stdout;
+    else
+      messageResult.message = 'Build successful. Standout out removed.';
     messageResult.panel = 'success';
   }
 
