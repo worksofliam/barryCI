@@ -132,14 +132,12 @@ async function buildLocal(localDir, makeParms, appID, repo, ref, commit) {
   } catch (err) {
     stderr = err;
   }
-
-  console.log('Build finished for ' + repo + '.');
+  
+  console.log('Build finished for ' + repo + ': ' + (stderr ? "failed" : "successful"));
 
   if (typeof stderr === 'object') {
     stderr = stderr.message + '\n\r' + stderr.stack;
   }
-  
-  console.log('Build finished for ' + repo + ': ' + (stderr ? "failed" : "successful"));
 
   if (stderr) {
     messageResult.status = FAILED;
@@ -170,8 +168,8 @@ async function updateStatus(appInfo, appID, commit, status, text) {
         "description": text
       });
     } catch (error) {
-      console.log('Did not update commit status on repo ' + appInfo.repo + '.');
-      console.log(error);
+      console.log('Did not update commit status on repo ' + appInfo.repo + ': ' + error.message);
+      console.log();
     }
   }
 }
