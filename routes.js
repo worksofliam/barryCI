@@ -70,23 +70,13 @@ router.get('/login', async (req, res) => {
   res.render('login');
 });
 
-router.post('/push/:id', async (req, res) => {
+router.post(['/work/:id', '/push/:id'], async (req, res) => {
   var appID = req.params.id;
-  /**
-   * appInfo {<github>, <secret>, <ref>, <makefile>, <make_parameters>, <repo>, <clone_url>, <repoDir>}
-   */
-  var appInfo = Object.assign({}, config.repos[appID]);
-  var commit = req.body.after;
+  var event_type = req.headers['x-github-event'];
+  var isAllowed = true;
 
-  if (appInfo !== undefined) {
-    appInfo.repo = req.body.repository.full_name;
-    appInfo.clone_url = req.body.repository.clone_url;
-
-    var isAllowed = true;
-    var secret = appInfo.secret || "";
-    var request = JSON.stringify(req.body);
-
-
+  if (config.repos[appID] !== undefined) {
+    var secret = config.repos[appID].secret || "";
     //If key is provided in header, check against local key.
     if (req.headers['x-hub-signature'] !== undefined) {
       var calculated_signature = 'sha1=' + crypto.createHmac('sha1', secret).update(request).digest('hex');
@@ -101,47 +91,66 @@ router.post('/push/:id', async (req, res) => {
     }
 
     if (isAllowed) {
-
-      res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
-
-      try {
-        appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
-      } catch (error) {
-        console.log('----------------');
-        console.log('Unable to clone repo: ' + appInfo.clone_url);
-        console.log(error);
-        console.log('----------------');
-        appInfo.repoDir = undefined;
-      }
-
-      if (appInfo.repoDir !== undefined) {
-        try {
-          await addRepoSetup(appInfo);
-        } catch (error) {
-          console.log('----------------');
-          console.log('No barryci.json file found in ' + appInfo.repo);
-          console.log(error);
-          console.log('----------------');
-        }
-
-        if (req.body.ref === appInfo.ref) {
-          updateStatus(appInfo, appID, commit, "pending", "Building application");
-
-          var result = await buildLocal(appInfo, appID, req.body.ref, commit);
-
-          updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
-        } else {
-          console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
-        }
+      switch (event_type) {
+        case 'push':
+          push_event(req, res);
+          break;
+        default:
+          res.json({message: 'Not handling ' + event_type + ' event.'});
       }
     } else {
       res.json({message: 'Secrets do not match.'});
     }
-
   } else {
-    res.json({message: 'Local repo not found.'});
+    res.json({message: 'Local configuration not found.'});
   }
 });
+
+async function push_event(req, res) {
+  var appID = req.params.id;
+  /**
+   * appInfo {<github>, <secret>, <ref>, <makefile>, <make_parameters>, <repo>, <clone_url>, <repoDir>}
+   */
+  var appInfo = Object.assign({}, config.repos[appID]);
+  var commit = req.body.after;
+
+  appInfo.repo = req.body.repository.full_name;
+  appInfo.clone_url = req.body.repository.clone_url;
+
+  res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+
+  try {
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
+  } catch (error) {
+    console.log('----------------');
+    console.log('Unable to clone repo: ' + appInfo.clone_url);
+    console.log(error);
+    console.log('----------------');
+    appInfo.repoDir = undefined;
+  }
+
+  if (appInfo.repoDir !== undefined) {
+    try {
+      await addRepoSetup(appInfo);
+    } catch (error) {
+      console.log('----------------');
+      console.log('No barryci.json file found in ' + appInfo.repo);
+      console.log(error);
+      console.log('----------------');
+    }
+
+    if (req.body.ref === appInfo.ref) {
+      updateStatus(appInfo, appID, commit, "pending", "Building application");
+
+      var result = await buildLocal(appInfo, appID, req.body.ref, commit);
+
+      updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+    } else {
+      console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
+    }
+  }
+
+};
 
 async function cloneRepo(httpsURI, repoName) {
 
