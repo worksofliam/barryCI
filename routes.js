@@ -188,7 +188,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
         stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir });
       }
     }
-    stdout = await execPromise('gmake', appInfo.make_parameters, { cwd: appInfo.repoDir });
+    stdout = await execPromise(appInfo.make_command, appInfo.make_parameters, { cwd: appInfo.repoDir });
     stderr = undefined; //No error?
   } catch (err) {
     stderr = err;
@@ -282,6 +282,7 @@ function execPromise(command, args, options) {
 async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
+  appInfo.make_command = data.make_command || 'gmake';
   appInfo.ref = data.ref || 'refs/heads/master';
   appInfo.makefile = data.makefile;
   appInfo.make_parameters = data.make_parameters || [];

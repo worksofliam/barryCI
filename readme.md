@@ -35,6 +35,7 @@ Each repo that gets built can optionally have a `barryci.json` file in the root 
 
 This JSON file will contain one object made up of the following attributes:
 
+* `make_command` - **optional**, the command string for your runtime of make. `gmake` is default.
 * `makefile` - **optional**, the name of the makefile if it's not called `makefile`.
 * `make_parameters` - **optional**, an array of parameters passed into `gmake`.
 * `pre_make` - **optional** - an array of objects specifying commands to run before the build.
