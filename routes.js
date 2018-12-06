@@ -93,6 +93,8 @@ router.post('/push/:id', async (req, res) => {
 
       if (req.headers['x-hub-signature'] !== calculated_signature) {
         console.log('X-Hub-Signature does not match request signature: ' + appInfo.repo);
+        console.log(' > X-Hub-Signature: ' + req.headers['x-hub-signature']);
+        console.log(' > Calc..Signature: ' + calculated_signature);
         isAllowed = false;
       }
     }
