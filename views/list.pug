@@ -7,13 +7,13 @@ include ./head.pug
   .row
     .col-md-1
     .col-md-10
-      h3='Setup configurations'
-      table(class='table table-hover table-condensed')
+      h3 Setup configurations
+      table(class='table table-hover')
         thead
           tr
             th ID
             th Name
-            th Edit
+            th
         tbody
           each repo, key in repos
             tr
@@ -21,5 +21,37 @@ include ./head.pug
               td=repo.name
               td
                 a(href='/app/edit/' + key)
-                  button.btn.btn-primary(type='button') Edit
+                  button.btn.btn-primary(type='button', class='btn-sm') Edit
+    .col-md-1
+
+  .row
+    .col-md-1
+    .col-md-10
+      h3 Current statuses
+      table(class='table table-hover')
+        thead
+          tr
+            th Name
+            th Repo
+            th Status
+            th Time
+            th
+        tbody
+          - var color = ''
+          each status, key in statuses
+            case status.status
+              when 'pending'
+                - color = 'table-warning'
+              when 'success'
+                - color = 'table-success'
+              when 'failure'
+                - color = 'table-danger'
+            tr(class=color)
+              td=repos[key].name
+              td=status.repo
+              td=status.status
+              td=status.time
+              td
+                a(href=status.url, target='_blank')
+                  button.btn.btn-primary(type='button', class='btn-sm') View
     .col-md-1

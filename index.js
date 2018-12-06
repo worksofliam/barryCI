@@ -15,8 +15,8 @@ var config = Config.dataSet;
 
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(bodyParser());
-app.use(session({ secret: 'yolo' }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({ secret: 'yolo', resave: true, saveUninitialized: true }));
 app.set('view engine', 'pug');
 
 function checkAuth (req, res, next) {
@@ -32,6 +32,7 @@ function checkAuth (req, res, next) {
 app.use(checkAuth);
 
 app.use('/public', express.static('./views/public'));
+app.use('/app', require('./app'));
 app.use('/', require('./routes'));
 
 app.listen(config.port, () => console.log(`barryCI listening on port ${config.port}!`));

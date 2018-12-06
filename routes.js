@@ -22,6 +22,10 @@ var config = Config.dataSet;
 
 //**********************************************
 
+var statuses = require('./statuses');
+
+//**********************************************
+
 var github = require('octonode');
 
 //**********************************************
@@ -62,62 +66,8 @@ router.post('/login', function (req, res) {
 
 });
 
-router.get('/app/logout', function (req, res) {
-  delete req.session.authenticated;
-  delete req.session.username;
-  
-  res.redirect('/login');
-});
-
 router.get('/login', async (req, res) => {
   res.render('login');
-});
-
-router.get('/app/list', async (req, res) => {
-  res.render('list', { username: req.session.username, repos: config.repos });
-});
-
-router.post(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
-  var id = req.body.id;
-
-  if (req.body.auth === "") req.body.auth = undefined;
-  if (req.body.secret === "") req.body.secret = undefined;
-
-  var repo = {
-    name: req.body.name,
-    github: req.body.auth,
-    secret: req.body.secret
-  }
-
-  if (id === "" || repo.name === "") {
-    res.redirect('/app/create');
-  } else {
-    Config.dataSet.repos[id] = repo;
-    await Config.saveConfigAsync();
-
-    res.redirect('/app/list');
-  }
-});
-
-router.get(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
-  var id = req.params.id;
-
-  var params = { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] };
-
-  if (id !== undefined) {
-    params.pushurl = config.address + ':' + config.port + '/push/' + id;
-  }
-
-  res.render('edit', params);
-});
-
-router.get(['/app/delete/:id'], async (req, res) => {
-  var id = req.params.id;
-
-  delete Config.dataSet.repos[id];
-  await Config.saveConfigAsync();
-
-  res.redirect('/app/list');
 });
 
 router.post('/push/:id', async (req, res) => {
@@ -269,13 +219,26 @@ async function buildLocal(appInfo, appID, ref, commit) {
 }
 
 async function updateStatus(appInfo, appID, commit, status, text) {
+
+  var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
+
+  statuses[appID] = {
+    id: appID,
+    repo: appInfo.repo,
+    commit: commit,
+    status: status,
+    text: text,
+    url: url,
+    time: new Date().toLocaleString()
+  };
+
   if (appInfo.github !== "PERSONAL-ACCESS-TOKEN-HERE") {
     var githubClient = github.client(appInfo.github);
     var ghrepo = githubClient.repo(appInfo.repo);
     try {
       await ghrepo.statusAsync(commit, {
         "state": status,
-        "target_url": config.address + ':' + config.port + '/result/' + appID + '/' + commit,
+        "target_url": url,
         "description": text
       });
     } catch (error) {

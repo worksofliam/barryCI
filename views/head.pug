@@ -1,11 +1,12 @@
 doctype html
 html(lang='en')
   head
-    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
-    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css")
     link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
-    script(defer, src="https://code.jquery.com/jquery-2.1.4.min.js")
-    script(defer, src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js")
+    script(defer, src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js")
+    script(defer, src="https://code.jquery.com/jquery-3.2.1.slim.min.js")
+    script(defer, src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js")
+
     script(defer, src="https://cdn.socket.io/socket.io-1.2.0.js")
     //Cannot defer
     script(src="https://cdn.rawgit.com/showdownjs/showdown/1.8.6/dist/showdown.min.js")
@@ -15,31 +16,22 @@ html(lang='en')
     else
       title barryCI
   body
-    nav.navbar.navbar-default
-      .container-fluid
-        .navbar-header
-          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1')
-            span.sr-only Toggle navigation
-            span.icon-bar
-            span.icon-bar
-            span.icon-bar
-          a.navbar-brand barryCI
-        #bs-example-navbar-collapse-1.collapse.navbar-collapse
-          ul.nav.navbar-nav
-            if username === undefined
-              li
-                a(href='/login') Login
-                  span.sr-only (current)
-            else
-              li
-                a(href='/app/list') List
-                  span.sr-only (current)
-              li
-                a(href='/app/create') Add build
-                  span.sr-only (current)
-              li
-                a(href='/app/logout') Log out
-                  span.sr-only (current)
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-4
+      a.navbar-brand(href='#') barryCI
+      button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      #navbarSupportedContent.collapse.navbar-collapse
+        ul.navbar-nav.mr-auto
+          if username === undefined
+            li.nav-item
+              a.navlink(href='/login') Login
+          else
+            li.nav-item
+              a.nav-link(href='/app/list') List
+            li.nav-item
+              a.nav-link(href='/app/create') Add build
+            li.nav-item
+              a.nav-link(href='/app/logout') Log out
     
     a(href="https://github.com/WorksOfBarry/barryCI")
       img(style="position: absolute; top:0; right: 0; border: 0;", src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png", alt="Fork me on GitHub")
