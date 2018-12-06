@@ -129,6 +129,9 @@ router.post('/push/:id', async (req, res) => {
   var commit = req.body.after;
 
   if (appInfo !== undefined) {
+    appInfo.repo = req.body.repository.full_name;
+    appInfo.clone_url = req.body.repository.clone_url;
+
     var isAllowed = true;
     var secret = appInfo.secret || "";
     var request = JSON.stringify(req.body);
@@ -139,13 +142,10 @@ router.post('/push/:id', async (req, res) => {
       var calculated_signature = new Buffer(signed);
 
       if (new Buffer(req.headers['x-hub-signature']).equals(calculated_signature) === false) {
-        console.log('X-Hub-Signature does not match request signature.');
+        console.log('X-Hub-Signature does not match request signature: ' + appInfo.repo);
         isAllowed = false;
       }
     }
-
-    appInfo.repo = req.body.repository.full_name;
-    appInfo.clone_url = req.body.repository.clone_url;
 
     if (isAllowed) {
 
