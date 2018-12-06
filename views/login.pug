@@ -1,0 +1,12 @@
+include ./head.pug
+link(href='/public/login.css', rel='stylesheet')
+
+.container
+  .card.card-container
+    img#profile-img.profile-img-card(src='//ssl.gstatic.com/accounts/ui/avatar_2x.png')
+    p#profile-name.profile-name-card
+    form.form-signin(method='post')
+      span#reauth-email.reauth-email
+      input#inputEmail.form-control(name='username', placeholder='Username', required, autofocus='')
+      input#inputPassword.form-control(name='password', type='password', placeholder='Password', required)
+      button.btn.btn-lg.btn-primary.btn-block.btn-signin(type='submit') Sign in

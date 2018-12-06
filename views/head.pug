@@ -26,10 +26,20 @@ html(lang='en')
           a.navbar-brand barryCI
         #bs-example-navbar-collapse-1.collapse.navbar-collapse
           ul.nav.navbar-nav
-            //- li
-            //-   a(href='/add')
-            //-     | Add build 
-            //-     span.sr-only (current)
+            if username === undefined
+              li
+                a(href='/login') Login
+                  span.sr-only (current)
+            else
+              li
+                a(href='/app/list') List
+                  span.sr-only (current)
+              li
+                a(href='/app/create') Add build
+                  span.sr-only (current)
+              li
+                a(href='/app/logout') Log out
+                  span.sr-only (current)
     
     a(href="https://github.com/WorksOfBarry/barryCI")
       img(style="position: absolute; top:0; right: 0; border: 0;", src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png", alt="Fork me on GitHub")

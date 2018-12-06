@@ -1,0 +1,50 @@
+include ./head.pug
+
+// https://getbootstrap.com/docs/3.3/css/#grid-example-basic
+
+.container
+
+  .row
+    .col-md-1
+    .col-md-10
+      if id === undefined
+        h2='Creating build.'
+      else
+        h2='Editing ' + repo.name + '.'
+      
+      form(method='post')
+        p
+          if id === undefined
+            fieldset
+              legend ID
+              p This ID will be used in the URLs for this build.
+              input(type='text', name='id')
+          else
+            input(type='text', name='id', value=id, hidden)
+        p
+          fieldset
+            legend Repo name
+            p This name is just as only a reference.
+            input(type='text', name='name', value=repo.name)
+        p
+          fieldset
+            legend GitHub Auth Key
+            p To be used if you want build status results posted back to GitHub (in real time).
+            input(type='password', name='auth', value=repo.github)
+        p
+          fieldset
+            legend Webhook Secret
+            p Recommended so no one else can trigger unwanted builds.
+            input(type='password', name='secret', value=repo.secret)
+        hr
+        p
+          .btn-group(role='group')
+            a(href='/app/list', type='button', class='btn btn-default') Cancel
+            input(type='submit', class='btn btn-primary', value='Save')
+            if id !== undefined
+              a(href='/app/delete/' + id, type='button', class='btn btn-danger') Delete
+
+      each message in flash
+        h4(style="color: red;") #{message}
+
+    .col-md-1

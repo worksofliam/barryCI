@@ -49,12 +49,76 @@ router.get('/result/:appID/:commit', async (req, res) => {
   }
 });
 
+router.post('/login', function (req, res) {
+
+  // you might like to do a database look-up or something more scalable here
+  if (req.body.username && req.body.username === config.login.user && req.body.password && req.body.password === config.login.pass) {
+    req.session.authenticated = true;
+    req.session.username = req.body.username;
+    res.redirect('/app/list');
+  } else {
+    res.redirect('/login');
+  }
+
+});
+
+router.get('/app/logout', function (req, res) {
+  delete req.session.authenticated;
+  delete req.session.username;
+  
+  res.redirect('/login');
+});
+
+router.get('/login', async (req, res) => {
+  res.render('login');
+});
+
+router.get('/app/list', async (req, res) => {
+  res.render('list', { username: req.session.username, repos: config.repos });
+});
+
+router.post(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
+  var id = req.body.id;
+
+  if (req.body.auth === "") req.body.auth = undefined;
+  if (req.body.secret === "") req.body.secret = undefined;
+
+  var repo = {
+    name: req.body.name,
+    github: req.body.auth,
+    secret: req.body.secret
+  }
+
+  if (id === "" || repo.name === "") {
+    res.redirect('/app/create');
+  } else {
+    Config.dataSet.repos[id] = repo;
+    await Config.saveConfigAsync();
+
+    res.redirect('/app/list');
+  }
+});
+
+router.get(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
+  var id = req.params.id;
+  res.render('edit', { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] });
+});
+
+router.get(['/app/delete/:id'], async (req, res) => {
+  var id = req.params.id;
+
+  delete Config.dataSet.repos[id];
+  await Config.saveConfigAsync();
+
+  res.redirect('/app/list');
+});
+
 router.post('/push/:id', async (req, res) => {
   var appID = req.params.id;
   /**
    * appInfo {<github>, <secret>, <ref>, <makefile>, <make_parameters>, <repo>, <clone_url>, <repoDir>}
    */
-  var appInfo = config.repos[appID];
+  var appInfo = Object.assign({}, config.repos[appID]);
   var commit = req.body.after;
 
   if (appInfo !== undefined) {
