@@ -86,12 +86,12 @@ router.post('/push/:id', async (req, res) => {
     var secret = appInfo.secret || "";
     var request = JSON.stringify(req.body);
 
+
     //If key is provided in header, check against local key.
     if (req.headers['x-hub-signature'] !== undefined) {
-      var signed = 'sha1=' + crypto.createHmac('sha1', secret).update(request).digest('hex');
-      var calculated_signature = new Buffer(signed);
+      var calculated_signature = 'sha1=' + crypto.createHmac('sha1', secret).update(request).digest('hex');
 
-      if (new Buffer(req.headers['x-hub-signature']).equals(calculated_signature) === false) {
+      if (req.headers['x-hub-signature'] !== calculated_signature) {
         console.log('X-Hub-Signature does not match request signature: ' + appInfo.repo);
         isAllowed = false;
       }
