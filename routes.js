@@ -149,7 +149,7 @@ async function cloneRepo(httpsURI, repoName) {
   var repoDir = await tmpDir();
 
   try {
-    var { stdout, stderr } = await exec('git clone ' + httpsURI, { cwd: repoDir });
+    var { stdout, stderr } = await exec('git clone --depth=1 ' + httpsURI, { cwd: repoDir });
     repoDir = path.join(repoDir, repoName);
     
     console.log('Cloned ' + repoName + ': ' + repoDir);
