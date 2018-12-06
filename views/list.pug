@@ -51,7 +51,7 @@ include ./head.pug
             tr(class=color)
               td=repos[key].name
               td=status.repo
-              td=status.status
+              td=status.text
               td=status.time
               td
                 if status.url !== ""
