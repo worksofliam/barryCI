@@ -45,7 +45,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
   }
 
   if (id === "" || repo.name === "") {
-    res.redirect('/create');
+    res.redirect('/app/create');
   } else {
     Config.dataSet.repos[id] = repo;
     await Config.saveConfigAsync();

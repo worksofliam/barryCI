@@ -12,37 +12,43 @@ include ./head.pug
       else
         h2='Editing ' + repo.name + '.'
       
+      .mb-4
+
       form(method='post')
-        p
-          if id === undefined
-            fieldset
-              legend ID
-              p This ID will be used in the URLs for this build.
-              input(type='text', name='id')
-          else
-            input(type='text', name='id', value=id, hidden)
-        p
-          fieldset
-            legend Build name
-            p This name is just as only a reference.
-            input(type='text', name='name', value=repo.name)
-        p
-          fieldset
-            legend GitHub Auth Key
-            p To be used if you want build status results posted back to GitHub (in real time).
-            input(type='password', name='auth', value=repo.github)
-        p
-          fieldset
-            legend Webhook Secret
-            p Recommended so no one else can trigger unwanted builds.
-            input(type='password', name='secret', value=repo.secret)
+        if id === undefined
+          .form-row
+            .form-group
+              label Build ID
+              input.form-control(type='text', name='id', placeholder='Build ID', required)
+              small.form-text.text-mutedThis ID will be used in the URLs for this build.
+        else
+          input(type='text', name='id', value=id, hidden)
+
+        .form-row
+          .form-group
+            label Build name
+            input.form-control(type='text', name='name', value=repo.name, placeholder='Build name', required)
+
+        .form-row
+          .form-group
+            label GitHub Auth Key
+            input.form-control(type='password', name='auth', value=repo.name, placeholder='')
+            small.form-text.text-mutedThis To be used if you want build status results posted back to GitHub (in real time).
+
+        .form-row
+          .form-group
+            label Secret
+            input.form-control(type='password', name='secret', value=repo.name, placeholder='')
+            small.form-text.text-mutedThis Recommended so no one else can trigger unwanted builds.
+
         hr
-        p
-          .btn-group(role='group')
-            a(href='/app/list', type='button', class='btn btn-default') Cancel
-            input(type='submit', class='btn btn-primary', value='Save')
-            if id !== undefined
-              a(href='/app/delete/' + id, type='button', class='btn btn-danger') Delete
+        .form-row
+          .form-group
+            .btn-group(role='group')
+              a(href='/app/list', type='button', class='btn btn-default') Cancel
+              input(type='submit', class='btn btn-primary', value='Save')
+              if id !== undefined
+                a(href='/app/delete/' + id, type='button', class='btn btn-danger') Delete
 
       if id !== undefined
         hr
