@@ -60,7 +60,7 @@ router.get(['/edit/:id', '/edit', '/create'], async (req, res) => {
   var params = { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] };
 
   if (id !== undefined) {
-    params.pushurl = config.address + ':' + config.port + '/push/' + id;
+    params.pushurl = config.address + ':' + config.port + '/work/' + id;
   }
 
   res.render('edit', params);

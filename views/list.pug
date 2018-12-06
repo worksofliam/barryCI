@@ -40,6 +40,8 @@ include ./head.pug
           - var color = ''
           each status, key in statuses
             case status.status
+              when 'cloning'
+                - color = 'table-active'
               when 'pending'
                 - color = 'table-warning'
               when 'success'
@@ -52,6 +54,7 @@ include ./head.pug
               td=status.status
               td=status.time
               td
-                a(href=status.url, target='_blank')
-                  button.btn.btn-primary(type='button', class='btn-sm') View
+                if status.url !== ""
+                  a(href=status.url, target='_blank')
+                    button.btn.btn-primary(type='button', class='btn-sm') View
     .col-md-1

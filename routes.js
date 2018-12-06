@@ -86,6 +86,7 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
         console.log(' >   Stored secret: "' + secret + '"');
         console.log(' > X-Hub-Signature: "' + req.headers['x-hub-signature'] + '"');
         console.log(' > Calc..Signature: "' + calculated_signature + '"');
+        updateStatus({repo: 'N/A'}, appID, '', 'failed', 'Signature auth failed.');
         isAllowed = false;
       }
     }
@@ -109,7 +110,7 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
 async function push_event(req, res) {
   var appID = req.params.id;
   /**
-   * appInfo {<github>, <secret>, <ref>, <makefile>, <make_parameters>, <repo>, <clone_url>, <repoDir>}
+   * appInfo {<github>, <secret>, <ref>, <build[{command, args}]>, <repo>, <clone_url>, <repoDir>}
    */
   var appInfo = Object.assign({}, config.repos[appID]);
   var commit = req.body.after;
@@ -119,9 +120,12 @@ async function push_event(req, res) {
 
   res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
+  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
+
   try {
     appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
   } catch (error) {
+    await updateStatus(appInfo, appID, "", "failed", "Failed to clone.");
     console.log('----------------');
     console.log('Unable to clone repo: ' + appInfo.clone_url);
     console.log(error);
@@ -140,11 +144,11 @@ async function push_event(req, res) {
     }
 
     if (req.body.ref === appInfo.ref) {
-      updateStatus(appInfo, appID, commit, "pending", "Building application");
+      updateGitHubStatus(appInfo, appID, commit, "pending", "Building application");
 
       var result = await buildLocal(appInfo, appID, req.body.ref, commit);
 
-      updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+      updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
     } else {
       console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
     }
@@ -191,14 +195,20 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
   var command, stdout, stderr;
   try {
-    if (appInfo.pre_make !== undefined) {
-      for (var i in appInfo.pre_make) {
-        command = appInfo.pre_make[i];
-        stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir });
+    if (appInfo.build !== undefined) {
+
+      if (appInfo.build.length > 0) {
+
+        for (var i in appInfo.build) {
+          command = appInfo.build[i];
+          stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir });
+        }
+        stderr = undefined; //No error?
+
+      } else {
+        stderr = '"build" flag in barryci.json is empty. Build failed as no commands provided.';
       }
     }
-    stdout = await execPromise(appInfo.make_command, appInfo.make_parameters, { cwd: appInfo.repoDir });
-    stderr = undefined; //No error?
   } catch (err) {
     stderr = err;
   }
@@ -232,7 +242,10 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
 async function updateStatus(appInfo, appID, commit, status, text) {
 
-  var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
+  var url = "";
+
+  if (commit !== "")
+    url = config.address + ':' + config.port + '/result/' + appID + '/' + commit
 
   statuses[appID] = {
     id: appID,
@@ -243,8 +256,15 @@ async function updateStatus(appInfo, appID, commit, status, text) {
     url: url,
     time: new Date().toLocaleString()
   };
+}
 
-  if (appInfo.github !== "PERSONAL-ACCESS-TOKEN-HERE") {
+async function updateGitHubStatus(appInfo, appID, commit, status, text) {
+
+  var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
+
+  await updateStatus(appInfo, appID, commit, status, text);
+
+  if (appInfo.github !== undefined) {
     var githubClient = github.client(appInfo.github);
     var ghrepo = githubClient.repo(appInfo.repo);
     try {
@@ -291,16 +311,9 @@ function execPromise(command, args, options) {
 async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
-  appInfo.make_command = data.make_command || 'gmake';
-  appInfo.ref = data.ref || 'refs/heads/master';
-  appInfo.makefile = data.makefile;
-  appInfo.make_parameters = data.make_parameters || [];
-
-  if (appInfo.makefile !== undefined) {
-    appInfo.make_parameters.push('-f' + appInfo.makefile);
-  }
-
-  appInfo.pre_make = data.pre_make;
+  appInfo.ref = data.ref || "refs/heads/master";
+  appInfo.build = data.build || [];
+  appInfo.release = data.release || {};
 }
 
 module.exports = router;
