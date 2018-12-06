@@ -101,7 +101,14 @@ router.post(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
 
 router.get(['/app/edit/:id', '/app/edit', '/app/create'], async (req, res) => {
   var id = req.params.id;
-  res.render('edit', { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] });
+
+  var params = { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] };
+
+  if (id !== undefined) {
+    params.pushurl = config.address + ':' + config.port + '/push/' + id;
+  }
+
+  res.render('edit', params);
 });
 
 router.get(['/app/delete/:id'], async (req, res) => {

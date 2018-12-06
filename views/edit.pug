@@ -8,7 +8,7 @@ include ./head.pug
     .col-md-1
     .col-md-10
       if id === undefined
-        h2='Creating build.'
+        h2 Creating build.
       else
         h2='Editing ' + repo.name + '.'
       
@@ -43,6 +43,12 @@ include ./head.pug
             input(type='submit', class='btn btn-primary', value='Save')
             if id !== undefined
               a(href='/app/delete/' + id, type='button', class='btn btn-danger') Delete
+
+      if id !== undefined
+        hr
+        h3 Build push URL
+        p This is the URL used for the (push only) webhook.
+        pre=pushurl
 
       each message in flash
         h4(style="color: red;") #{message}
