@@ -204,6 +204,7 @@ async function release_event(req, res) {
       if (appInfo.release.upload_file !== undefined) {
         appInfo.upload_file = path.join(appInfo.repoDir, appInfo.release.upload_file);
 
+        //First let's try and run our build if we need to do_build
         var result = {status: SUCCESSFUL}
         if (appInfo.release.do_build) {
           await updateStatus(appInfo, appID, commit, "pending", "Building application");
@@ -211,10 +212,12 @@ async function release_event(req, res) {
           await updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
         }
 
+        //If we don't need to be or it was successful...
         if (result.status === SUCCESSFUL) {
           try {
             await updateStatus(appInfo, appID, "", "pending", "Release starting");
       
+            //Run the post_commands
             if (appInfo.release.post_commands.length > 0) {
               for (var i in appInfo.release.post_commands) {
                 command = appInfo.release.post_commands[i];
@@ -222,6 +225,7 @@ async function release_event(req, res) {
               }
             }
 
+            //Then upload the file if it exists!
             try {
               await fileExists(appInfo.upload_file);
               
@@ -251,7 +255,6 @@ async function release_event(req, res) {
 }
 
 async function cloneRepo(httpsURI, repoName) {
-
   if (repoName.indexOf('/') >= 0)
   repoName = repoName.split('/')[1];
 
@@ -341,7 +344,6 @@ async function buildLocal(appInfo, appID, ref, commit) {
 }
 
 async function updateStatus(appInfo, appID, commit, status, text) {
-
   var url = "";
 
   if (commit !== "")
@@ -369,7 +371,7 @@ async function uploadGitHubRelease(appInfo) {
         contentType: 'application/zip',
         uploadHost: 'uploads.github.com'
       });
-      
+
       return Promise.resolve(true);
     } catch (error) {
       console.log('Did not update release on repo ' + appInfo.repo + ': ' + error.message);
