@@ -364,14 +364,15 @@ async function uploadGitHubRelease(appInfo) {
     var ghrel = githubClient.release(appInfo.repo, appInfo.release_id);
     var file = await readFileAsync(appInfo.upload_file);
     try {
-      await ghrel.uploadAssetsAsync(file, {
+      var response = await ghrel.uploadAssetsAsync(file, {
         name: path.basename(appInfo.upload_file),
         contentType: 'application/zip',
         uploadHost: 'uploads.github.com'
       });
+      console.log(response);
       Promise.resolve(true);
     } catch (error) {
-      console.log('Did not update commit status on repo ' + appInfo.repo + ': ' + error.message);
+      console.log('Did not update release on repo ' + appInfo.repo + ': ' + error.message);
       Promise.resolve(false);
     }
   }
