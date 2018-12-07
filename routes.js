@@ -301,13 +301,13 @@ function execPromise(command, args, options) {
     child.stdout.on('data', (data) => {
       stdout += data;
 
-      sockets.results.pushStandardContent(appID, commit, data);
+      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
 
     child.stderr.on('data', (data) => {
       stderr += data;
 
-      sockets.results.pushStandardContent(appID, commit, data);
+      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
 
     child.on('error', (data) => {
