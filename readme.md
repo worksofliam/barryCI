@@ -20,3 +20,14 @@ The only place you need to do any setup is in the `config.json` which is generat
 * `login` - the login which can is used from the frontend.
 
 That's the only configuration required before running barryCI. Next, you can access the barryCI interface by going to `localhost:port/login` and use the login you setup in the configuration.
+
+## barryCI web interface
+
+The main way to manage your builds is through the barryCI web interface. You can access the barryCI interface by going to `localhost:port/login` and then using the login from your configuration.
+
+The interface allows you to:
+
+* Have a real time dashboard of build statuses
+* See build progresss in real time
+* Add and manage builds (including setup to connect to GitHub)
+* Trigger builds
