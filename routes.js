@@ -130,12 +130,10 @@ async function push_event(req, res) {
 
   res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
-  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
-
   try {
     appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
   } catch (error) {
-    await updateStatus(appInfo, appID, "", "failed", "Failed to clone.");
+    await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
     console.log('Unable to clone repo: ' + appInfo.clone_url);
     console.log(error);
@@ -184,7 +182,7 @@ async function release_event(req, res) {
   try {
     appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
   } catch (error) {
-    await updateStatus(appInfo, appID, "", "failed", "Failed to clone.");
+    await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
     console.log('Unable to clone repo: ' + appInfo.clone_url);
     console.log(error);
@@ -204,7 +202,7 @@ async function release_event(req, res) {
 
     if (appInfo.release !== undefined) {
       if (appInfo.release.upload_file !== undefined) {
-        appInfo.upload_file = path.join(cwd, appInfo.release.upload_file);
+        appInfo.upload_file = path.join(appInfo.repoDir, appInfo.release.upload_file);
 
         var result = {status: SUCCESSFUL}
         if (appInfo.release.do_build) {
@@ -230,24 +228,24 @@ async function release_event(req, res) {
               if (await uploadGitHubRelease(appInfo)) {
                 await updateStatus(appInfo, appID, "", "success", "Release created.");
               } else {
-                await updateStatus(appInfo, appID, "", "failed", "Release upload failed.");
+                await updateStatus(appInfo, appID, "", "failure", "Release upload failed.");
               }
             } catch (err) {
-              await updateStatus(appInfo, appID, "", "failed", "Build failed for release: no file.");
+              await updateStatus(appInfo, appID, "", "failure", "Build failed for release: no file.");
             }
           } catch (err) {
             sockets.results.pushStandardContent(appID, commit, err);
-            await updateStatus(appInfo, appID, "", "failed", "Build failed for release.");
+            await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
           }
         } else {
-          await updateStatus(appInfo, appID, "", "failed", "Build failed for release.");
+          await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
         }
 
       } else {
-        await updateStatus(appInfo, appID, "", "failed", "Release file not defined in barryci.json.");
+        await updateStatus(appInfo, appID, "", "failure", "Release file not defined in barryci.json.");
       }
     } else {
-      await updateStatus(appInfo, appID, "", "failed", "Release not defined in barryci.json.");
+      await updateStatus(appInfo, appID, "", "failure", "Release not defined in barryci.json.");
     }
   }
 }
