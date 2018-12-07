@@ -370,10 +370,10 @@ async function uploadGitHubRelease(appInfo) {
         uploadHost: 'uploads.github.com'
       });
       console.log(response);
-      Promise.resolve(true);
+      return Promise.resolve(true);
     } catch (error) {
       console.log('Did not update release on repo ' + appInfo.repo + ': ' + error.message);
-      Promise.resolve(false);
+      return Promise.resolve(false);
     }
   }
 }
