@@ -174,13 +174,14 @@ async function release_event(req, res) {
   appInfo.repo = req.body.repository.full_name;
   appInfo.clone_url = req.body.repository.clone_url;
   appInfo.release_id = req.body.release.id;
+  appInfo.release_branch = req.body.release.target_commitish;
 
   res.json({message: 'Release for ' + appInfo.repo + ' starting.'});
 
   await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
 
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1], appInfo.release_branch);
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -215,7 +216,7 @@ async function release_event(req, res) {
         //If we don't need to be or it was successful...
         if (result.status === SUCCESSFUL) {
           try {
-            await updateStatus(appInfo, appID, "", "pending", "Release starting");
+            await updateStatus(appInfo, appID, commit, "pending", "Release starting.");
       
             //Run the post_commands
             if (appInfo.release.post_commands.length > 0) {
@@ -229,6 +230,7 @@ async function release_event(req, res) {
             try {
               await fileExists(appInfo.upload_file);
               
+              await updateStatus(appInfo, appID, "", "pending", "Release upload started.");
               if (await uploadGitHubRelease(appInfo)) {
                 await updateStatus(appInfo, appID, "", "success", "Release created.");
               } else {
@@ -254,15 +256,22 @@ async function release_event(req, res) {
   }
 }
 
-async function cloneRepo(httpsURI, repoName) {
+async function cloneRepo(httpsURI, repoName, branch) {
   if (repoName.indexOf('/') >= 0)
   repoName = repoName.split('/')[1];
 
   console.log('Clone for ' + repoName + ' starting.');
   var repoDir = await tmpDir();
 
+  var clone_string = 'git clone --depth=1 ';
+
+  if (branch !== undefined) 
+    clone_string += '--single-branch -b ' + branch + ' ';
+
+  clone_string += httpsURI;
+
   try {
-    var { stdout, stderr } = await exec('git clone --depth=1 ' + httpsURI, { cwd: repoDir });
+    var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
     repoDir = path.join(repoDir, repoName);
     
     console.log('Cloned ' + repoName + ': ' + repoDir);

@@ -1,6 +1,6 @@
 # barryCI
 
-barryCI is a build server for IBM i (well, mainly tested for ILE applications) written in Node.js. The barryCI needs to be exposed to the internet for builds to be triggered from GitHub.
+barryCI is a build server for IBM i (well, mainly tested for ILE applications) written in Node.js. barryCI needs to be exposed to the internet for builds to be triggered from GitHub.
 
 ## Installation
 
@@ -19,43 +19,4 @@ The only place you need to do any setup is in the `config.json` which is generat
 * `store_stdout` - if true, standard out will not be stored if successful. Standard error is always saved.
 * `login` - the login which can is used from the frontend.
 
-## Configuring a build when a push happens
-
-
-
-### Setting up the webhook
-
-Next, you will need to create a webhook in your GitHub repository settings. You can find the webhook in the edit page of the build item in barryCI.
-
-![](https://i.imgur.com/i7j8GMp.png)
-
-### Setting up the `barryci.json`
-
-Each repo that gets built can optionally have a `barryci.json` file in the root of the repo. This file contains build information that will be used on the build system.
-
-This JSON file will contain one object made up of the following attributes:
-
-* `make_command` - **optional**, the command string for your runtime of make. `gmake` is default.
-* `makefile` - **optional**, the name of the makefile if it's not called `makefile`.
-* `make_parameters` - **optional**, an array of parameters passed into `gmake`.
-* `pre_make` - **optional** - an array of objects specifying commands to run before the build.
-  * `command` - **required** - the command (string) to be execute.
-  * `args` - **required** - an array of arguments.
-
-```json
-{
-	"make_parameters": ["BIN_LIB=ILEUSION"]
-}
-```
-
-```json
-{
-  "pre_make": [
-    {
-      "command": "./configure",
-      "args": []
-    }
-  ],
-  "make_parameters": ["LIBRARY=KXMLSRV"]
-}
-```
+That's the only configuration required before running barryCI. Next, you can access the barryCI interface by going to `localhost:port/login` and use the login you setup in the configuration.
