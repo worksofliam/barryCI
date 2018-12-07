@@ -65,23 +65,25 @@ module.exports = {
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           if (client.page === appID && client.commit === commit) {
-            client.send(JSON.stringify({status: status}));
+            client.send(JSON.stringify({status: status, time: new Date().toLocaleString()}));
           }
         }
       });
     }
   },
 
-  updateStatus: function(id, data) {
-    if (appID === undefined) return;
-
-    wss.clients.forEach(function each(client) {
-      if (client.readyState === WebSocket.OPEN) {
-        if (client.page === "status") {
-          client.send(JSON.stringify({id: id, data: data}));
+  view: {
+    updateStatus: function(appID, data) {
+      if (appID === undefined) return;
+  
+      wss.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+          if (client.page === "status") {
+            client.send(JSON.stringify({id: appID, data: data}));
+          }
         }
-      }
-    });
+      });
+    }
   },
 
   closeClient: function(appID, commit) {

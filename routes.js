@@ -359,7 +359,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
     url = config.address + ':' + config.port + '/result/' + appID + '/' + commit
 
   statuses[appID] = {
-    id: appID,
+    name: appInfo.name,
     repo: appInfo.repo,
     commit: commit,
     status: status,
@@ -367,6 +367,8 @@ async function updateStatus(appInfo, appID, commit, status, text) {
     url: url,
     time: new Date().toLocaleString()
   };
+
+  sockets.view.updateStatus(appID, statuses[appID]);
 }
 
 async function uploadGitHubRelease(appInfo) {

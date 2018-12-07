@@ -29,9 +29,9 @@ html(lang='en')
             li.nav-item
               a.nav-link(href='/app/list') List
             li.nav-item
-              a.nav-link(href='/app/create') Add build
+              a.nav-link(href='/app/manage') Manage builds
             li.nav-item
-              a.nav-link(href='/app/logout') Log out
+              a.nav-link(href='/app/logout')='Log out ' + username
     
     a(href="https://github.com/WorksOfBarry/barryCI")
       img(style="position: absolute; top:0; right: 0; border: 0;", src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png", alt="Fork me on GitHub")

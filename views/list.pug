@@ -1,4 +1,5 @@
 include ./head.pug
+script(defer, src="/public/statusUpdate.js")
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -7,28 +8,8 @@ include ./head.pug
   .row
     .col-md-1
     .col-md-10
-      h3 Build configurations
-      table(class='table table-hover')
-        thead
-          tr
-            th ID
-            th Name
-            th
-        tbody
-          each repo, key in repos
-            tr
-              td=key
-              td=repo.name
-              td
-                a(href='/app/edit/' + key)
-                  button.btn.btn-primary(type='button', class='btn-sm') Edit
-    .col-md-1
-
-  .row
-    .col-md-1
-    .col-md-10
       h3 Latest builds
-      table(class='table table-hover')
+      table(id='statuses', class='table table-hover')
         thead
           tr
             th Name
@@ -48,12 +29,12 @@ include ./head.pug
                 - color = 'table-success'
               when 'failure'
                 - color = 'table-danger'
-            tr(class=color)
-              td=repos[key].name
-              td=status.repo
-              td=status.text
-              td=status.time
-              td
+            tr(id=key + 'tr', class=color)
+              td(id=key+'name')=status.name
+              td(id=key+'repo')=status.repo
+              td(id=key+'text')=status.text
+              td(id=key+'time')=status.time
+              td(id=key+'viewBtn')
                 if status.url !== ""
                   a(href=status.url, target='_blank')
                     button.btn.btn-primary(type='button', class='btn-sm') View

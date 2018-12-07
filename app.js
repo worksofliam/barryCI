@@ -28,6 +28,10 @@ router.get('/list', async (req, res) => {
   res.render('list', { username: req.session.username, repos: config.repos, statuses: statuses });
 });
 
+router.get('/manage', async (req, res) => {
+  res.render('manage', { username: req.session.username, repos: config.repos });
+});
+
 router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
   var id = req.body.id;
 
@@ -46,7 +50,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
     Config.dataSet.repos[id] = repo;
     await Config.saveConfigAsync();
 
-    res.redirect('/app/list');
+    res.redirect('/app/manage');
   }
 });
 
@@ -68,7 +72,7 @@ router.get(['/delete/:id'], async (req, res) => {
   delete Config.dataSet.repos[id];
   await Config.saveConfigAsync();
 
-  res.redirect('/app/list');
+  res.redirect('/app/manage');
 });
 
 module.exports = router;

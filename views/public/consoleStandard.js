@@ -1,6 +1,4 @@
 
-
-
 window.onload = function () { 
   console.log('Page loaded, contacting socket server.');
 
@@ -41,8 +39,4 @@ window.onload = function () {
         break;
     }
   };
-
-  ws.onclose = function() { 
-    //Update status here?
- };
 }
