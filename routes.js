@@ -451,40 +451,40 @@ async function updateGitHubStatus(appInfo, appID, commit, status, text) {
 
 function execPromise(command, args, options) {
   return new Promise((resolve, reject) => {
-    var stdout = "", stderr = "";
+    var output = "";
     const child = spawn(command, args, options);
 
     var appID = options.appID;
     var commit = options.commit;
 
     child.stdout.on('data', (data) => {
-      stdout += data;
+      output += data.toString('utf8');
 
       sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
 
     child.stderr.on('data', (data) => {
-      stderr += data;
+      output += data.toString('utf8');
 
       sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
 
     child.on('error', (data) => {
-      console.log('hard error:');
-      console.log(data);
-
       var message = (data.code + ' (' + data.errno + ') - ' + data.path + ': ' + data.message);
-      stderr += message;
+      output += message;
 
-      sockets.results.pushStandardContent(appID, commit, message + '\n\r');
+      sockets.results.pushStandardContent(appID, commit, '\n\r' + message + '\n\r');
     });
 
     child.on('close', (code) => {
       sockets.closeClient(appID);
       if (code !== 0) {
-        reject(stderr);
+        if (output.length > 500)
+          output = output.substr(id.length - 5);
+
+        reject(output);
       } else {
-        resolve(stdout);
+        resolve(output);
       }
     });
   });
