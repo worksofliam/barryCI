@@ -66,10 +66,13 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
 router.get(['/edit/:id', '/edit', '/create'], async (req, res) => {
   var id = req.params.id;
 
-  var params = { username: req.session.username, id: id, repo: config.repos[id] || {} };
+  var params = { username: req.session.username, repo: config.repos[id] || {} };
 
   if (id !== undefined) {
+    params.id = id;
     params.pushurl = config.address + ':' + config.port + '/work/' + id;
+  } else {
+    params.use_id = makeid();
   }
 
   res.render('edit', params);
@@ -83,5 +86,15 @@ router.get(['/delete/:id'], async (req, res) => {
 
   res.redirect('/app/manage');
 });
+
+function makeid() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 10; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
 
 module.exports = router;
