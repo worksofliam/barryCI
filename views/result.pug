@@ -1,5 +1,6 @@
 include ./head.pug
 script(defer, src="/public/consoleStandard.js")
+link(href='/public/resultPage.css', rel='stylesheet')
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -31,5 +32,5 @@ script(defer, src="/public/consoleStandard.js")
       .card.mb-3
         .card-header Result
         .card-body
-          textarea#console.form-control(rows='20')
+          textarea#console.form-control(rows='20', readonly)=message
     .col-md-1

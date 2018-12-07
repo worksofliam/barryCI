@@ -192,7 +192,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
     ref: ref,
     commit: commit,
     timestamp: new Date().toLocaleString(),
-    message: 'Building application.',
+    message: 'Building application.\n\r',
     panel: 'warning'
   }
 

@@ -24,7 +24,7 @@ window.onload = function () {
     switch (true) {
       case evt.append !== undefined:
         consoleBox.innerHTML += evt.append;
-        consoleBox.scrollTop = textarea.scrollHeight;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
         break;
 
       case evt.set !== undefined:
