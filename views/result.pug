@@ -7,8 +7,7 @@ link(href='/public/resultPage.css', rel='stylesheet')
 .container
 
   .row
-    .col-md-1
-    .col-md-10
+    .col
       h3.mb-4=project + ' build result'
       .card.mb-3#infocard(class='border-' + panel)
         .card-body
@@ -24,13 +23,10 @@ link(href='/public/resultPage.css', rel='stylesheet')
                 td=commit
                 td=ref
                 td#timeUpdated=timestamp
-    .col-md-1
     
   .row
-    .col-md-1
-    .col-md-10
+    .col
       .card.mb-3
         .card-header Result
         .card-body
           textarea#console.form-control(rows='20', readonly)=message
-    .col-md-1

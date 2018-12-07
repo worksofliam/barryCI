@@ -37,11 +37,20 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
 
   if (req.body.auth === "") req.body.auth = undefined;
   if (req.body.secret === "") req.body.secret = undefined;
+  if (req.body.clone_url === "") req.body.clone_url = undefined;
+
+  if (req.body.clone_url !== undefined) {
+    var parts = req.body.clone_url.split('/');
+    if (parts[parts.length-1].endsWith('.git'))
+      req.body.repo = parts[parts.length-1].substring(0, parts[parts.length-1].length - 4)
+  }
 
   var repo = {
     name: req.body.name,
     github: req.body.auth,
-    secret: req.body.secret
+    secret: req.body.secret,
+    clone_url: req.body.clone_url,
+    repo: req.body.repo
   }
 
   if (id === "" || repo.name === "") {
@@ -57,7 +66,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
 router.get(['/edit/:id', '/edit', '/create'], async (req, res) => {
   var id = req.params.id;
 
-  var params = { username: req.session.username, id: id, repo: config.repos[id] || {}, flash: [] };
+  var params = { username: req.session.username, id: id, repo: config.repos[id] || {} };
 
   if (id !== undefined) {
     params.pushurl = config.address + ':' + config.port + '/work/' + id;

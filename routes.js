@@ -120,18 +120,54 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
   }
 });
 
+router.post('/app/build/:id', async (req, res) => {
+  var appID = req.params.id;
+
+  if (config.repos[appID] !== undefined) {
+    var appInfo = config.repos[appID];
+    if (appInfo.clone_url !== undefined) {
+
+      var input = {
+        params: {
+          id: appID
+        },
+        body: {
+          ref: 'refs/heads/master',
+          after: 'HEAD',
+          repository: {
+            full_name: appInfo.repo,
+            clone_url: appInfo.clone_url
+          }
+        }
+      }
+
+      res.json({message: 'Build starting for ' + appInfo.name + '.'});
+      push_event(input);
+
+    } else {
+      res.json({message: 'HTTPS clone URL missing from ' + appInfo.name + '.'});
+    }
+  } else {
+    res.json({message: 'Build ID does not exist.'});
+  }
+});
+
 async function push_event(req, res) {
   var appID = req.params.id;
-  var appInfo = Object.assign({}, config.repos[appID]);
   var commit = req.body.after;
+  
+  var appInfo = Object.assign({}, config.repos[appID]);
 
   appInfo.repo = req.body.repository.full_name;
   appInfo.clone_url = req.body.repository.clone_url;
 
-  res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+  if (res !== undefined)
+    res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+
+  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
 
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo);
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -258,7 +294,7 @@ async function release_event(req, res) {
 
 async function cloneRepo(httpsURI, repoName, branch) {
   if (repoName.indexOf('/') >= 0)
-  repoName = repoName.split('/')[1];
+    repoName = repoName.split('/')[1];
 
   console.log('Clone for ' + repoName + ' starting.');
   var repoDir = await tmpDir();
@@ -394,8 +430,9 @@ async function uploadGitHubRelease(appInfo) {
 async function updateGitHubStatus(appInfo, appID, commit, status, text) {
 
   var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
-
   await updateStatus(appInfo, appID, commit, status, text);
+
+  if (commit === "HEAD") return;
 
   if (appInfo.github !== undefined) {
     var githubClient = github.client(appInfo.github);

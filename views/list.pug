@@ -6,8 +6,7 @@ script(defer, src="/public/statusUpdate.js")
 .container
 
   .row
-    .col-md-1
-    .col-md-10
+    .col
       h3 Latest builds
       table(id='statuses', class='table table-hover')
         thead
@@ -38,4 +37,3 @@ script(defer, src="/public/statusUpdate.js")
                 if status.url !== ""
                   a(href=status.url, target='_blank')
                     button.btn.btn-primary(type='button', class='btn-sm') View
-    .col-md-1
