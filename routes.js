@@ -369,7 +369,7 @@ async function uploadGitHubRelease(appInfo) {
         contentType: 'application/zip',
         uploadHost: 'uploads.github.com'
       });
-      console.log(response);
+      
       return Promise.resolve(true);
     } catch (error) {
       console.log('Did not update release on repo ' + appInfo.repo + ': ' + error.message);
