@@ -1,9 +1,5 @@
 
 const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const spawn = require('child_process').spawn;
-const crypto = require('crypto');
-const path = require('path');
 
 var express = require('express'), router = express.Router();
 

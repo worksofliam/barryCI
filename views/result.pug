@@ -1,4 +1,5 @@
 include ./head.pug
+script(defer, src="/public/consoleStandard.js")
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -8,7 +9,7 @@ include ./head.pug
     .col-md-1
     .col-md-10
       h3.mb-4=project + ' build result'
-      .card.mb-3(class='border-' + panel)
+      .card.mb-3#infocard(class='border-' + panel)
         .card-body
           h5.card-title Information
           table(class='table table-condensed')
@@ -21,7 +22,7 @@ include ./head.pug
               tr
                 td=commit
                 td=ref
-                td=timestamp
+                td#timeUpdated=timestamp
     .col-md-1
     
   .row
@@ -30,5 +31,5 @@ include ./head.pug
       .card.mb-3
         .card-header Result
         .card-body
-          pre.pre-scrollable=message
+          pre.pre-scrollable#standard=message
     .col-md-1

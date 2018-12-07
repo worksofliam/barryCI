@@ -15,6 +15,10 @@ const readFileAsync = util.promisify(fs.readFile);
 
 //**********************************************
 
+var sockets = require('./sockets');
+
+//**********************************************
+
 var ConfigClass = require('./config');
 var Config = new ConfigClass();
 Config.loadConfig('config.json');
@@ -192,21 +196,24 @@ async function buildLocal(appInfo, appID, ref, commit) {
   }
 
   buildMessages[appID + commit] = messageResult;
+  sockets.results.setStatus(appID, commit, messageResult.panel);
 
   var command, stdout, stderr;
   try {
     if (appInfo.build !== undefined) {
+      sockets.results.setStandardContent(appID, commit, "Build starting...\n\r");
 
       if (appInfo.build.length > 0) {
 
         for (var i in appInfo.build) {
           command = appInfo.build[i];
-          stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir });
+          stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
         }
         stderr = undefined; //No error?
 
       } else {
         stderr = '"build" flag in barryci.json is empty. Build failed as no commands provided.';
+        sockets.results.setStandardContent(appID, commit, stderr);
       }
     }
   } catch (err) {
@@ -231,6 +238,9 @@ async function buildLocal(appInfo, appID, ref, commit) {
       messageResult.message = 'Build successful. Standout out removed.';
     messageResult.panel = 'success';
   }
+
+  sockets.results.pushStandardContent(appID, commit, "End of build.");
+  sockets.results.setStatus(appID, commit, messageResult.panel);
 
   buildMessages[appID + commit] = messageResult;
   await buildMessagesConfig.saveConfigAsync();
@@ -284,21 +294,33 @@ function execPromise(command, args, options) {
     var stdout = "", stderr = "";
     const child = spawn(command, args, options);
 
+    var appID = options.appID;
+    var commit = options.commit;
+
     child.stdout.on('data', (data) => {
       stdout += data;
+
+      sockets.results.pushStandardContent(appID, commit, data);
     });
 
     child.stderr.on('data', (data) => {
       stderr += data;
+
+      sockets.results.pushStandardContent(appID, commit, data);
     });
 
     child.on('error', (data) => {
       console.log('hard error:');
       console.log(data);
-      stderr += data;
+
+      var message = (data.code + ' (' + data.errno + ') - ' + data.path + ': ' + data.message);
+      stderr += message;
+
+      sockets.results.pushStandardContent(appID, commit, message + '\n\r');
     });
 
     child.on('close', (code) => {
+      sockets.closeClient(appID);
       if (code !== 0) {
         reject(stderr);
       } else {

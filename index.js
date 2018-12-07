@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
+var sockets = require('./sockets');
+
 var Config = new ConfigClass();
 Config.setDefaults(require('./defaultConfig'));
 
@@ -36,3 +38,4 @@ app.use('/app', require('./app'));
 app.use('/', require('./routes'));
 
 app.listen(config.port, () => console.log(`barryCI listening on port ${config.port}!`));
+sockets.startServer(config.port+1);
