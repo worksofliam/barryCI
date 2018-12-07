@@ -17,13 +17,14 @@ window.onload = function () {
   ws.onmessage = function (evt) {
     evt = JSON.parse(evt.data);
 
-    var consoleBox = document.getElementById('standard');
+    var consoleBox = document.getElementById('console');
     var infocard = document.getElementById('infocard');
     var timeUpdated = document.getElementById('timeUpdated');
 
     switch (true) {
       case evt.append !== undefined:
         consoleBox.innerHTML += evt.append;
+        consoleBox.scrollTop = textarea.scrollHeight;
         break;
 
       case evt.set !== undefined:
