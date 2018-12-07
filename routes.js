@@ -364,7 +364,7 @@ async function uploadGitHubRelease(appInfo) {
     var ghrel = githubClient.release(appInfo.repo, appInfo.release_id);
     var file = await readFileAsync(appInfo.upload_file);
     try {
-      await ghrel.uploadAssets(file, {
+      await ghrel.uploadAssetsAsync(file, {
         name: path.basename(appInfo.upload_file),
         contentType: 'application/zip',
         uploadHost: 'uploads.github.com'
