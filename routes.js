@@ -4,6 +4,7 @@ const exec = util.promisify(require('child_process').exec);
 const spawn = require('child_process').spawn;
 const crypto = require('crypto');
 const path = require('path');
+var fileExists = require('file-exists-promise')
 
 var express = require('express'), router = express.Router();
 
@@ -18,6 +19,10 @@ const readFileAsync = util.promisify(fs.readFile);
 var sockets = require('./sockets');
 
 //**********************************************
+
+/**
+ * appInfo {<github>, <secret>, <ref>, <build[{command, args}]>, <release{do_build, post_commands, upload_file}> <repo>, <clone_url>, <repoDir>}
+ */
 
 var ConfigClass = require('./config');
 var Config = new ConfigClass();
@@ -101,6 +106,9 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
         case 'push':
           push_event(req, res);
           break;
+        case 'release':
+          release_event(req, res);
+          break;
         default:
           res.json({message: 'Not handling ' + event_type + ' event.'});
       }
@@ -114,9 +122,6 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
 
 async function push_event(req, res) {
   var appID = req.params.id;
-  /**
-   * appInfo {<github>, <secret>, <ref>, <build[{command, args}]>, <repo>, <clone_url>, <repoDir>}
-   */
   var appInfo = Object.assign({}, config.repos[appID]);
   var commit = req.body.after;
 
@@ -160,6 +165,92 @@ async function push_event(req, res) {
   }
 
 };
+
+async function release_event(req, res) {
+  var appID = req.params.id;
+  var appInfo = Object.assign({}, config.repos[appID]);
+
+  var commit = req.body.release.tag_name;
+
+  appInfo.tag_name = commit;
+  appInfo.repo = req.body.repository.full_name;
+  appInfo.clone_url = req.body.repository.clone_url;
+  appInfo.release_id = req.body.release.id;
+
+  res.json({message: 'Release for ' + appInfo.repo + ' starting.'});
+
+  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
+
+  try {
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1]);
+  } catch (error) {
+    await updateStatus(appInfo, appID, "", "failed", "Failed to clone.");
+    console.log('----------------');
+    console.log('Unable to clone repo: ' + appInfo.clone_url);
+    console.log(error);
+    console.log('----------------');
+    appInfo.repoDir = undefined;
+  }
+
+  if (appInfo.repoDir !== undefined) {
+    try {
+      await addRepoSetup(appInfo);
+    } catch (error) {
+      console.log('----------------');
+      console.log('No barryci.json file found in ' + appInfo.repo);
+      console.log(error);
+      console.log('----------------');
+    }
+
+    if (appInfo.release !== undefined) {
+      if (appInfo.release.upload_file !== undefined) {
+        appInfo.upload_file = path.join(cwd, appInfo.release.upload_file);
+
+        var result = {status: SUCCESSFUL}
+        if (appInfo.release.do_build) {
+          await updateStatus(appInfo, appID, commit, "pending", "Building application");
+          result = await buildLocal(appInfo, appID, req.body.ref, commit);
+          await updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+        }
+
+        if (result.status === SUCCESSFUL) {
+          try {
+            await updateStatus(appInfo, appID, "", "pending", "Release starting");
+      
+            if (appInfo.release.post_commands.length > 0) {
+              for (var i in appInfo.release.post_commands) {
+                command = appInfo.release.post_commands[i];
+                await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
+              }
+            }
+
+            try {
+              await fileExists(appInfo.upload_file);
+              
+              if (await uploadGitHubRelease(appInfo)) {
+                await updateStatus(appInfo, appID, "", "success", "Release created.");
+              } else {
+                await updateStatus(appInfo, appID, "", "failed", "Release upload failed.");
+              }
+            } catch (err) {
+              await updateStatus(appInfo, appID, "", "failed", "Build failed for release: no file.");
+            }
+          } catch (err) {
+            sockets.results.pushStandardContent(appID, commit, err);
+            await updateStatus(appInfo, appID, "", "failed", "Build failed for release.");
+          }
+        } else {
+          await updateStatus(appInfo, appID, "", "failed", "Build failed for release.");
+        }
+
+      } else {
+        await updateStatus(appInfo, appID, "", "failed", "Release file not defined in barryci.json.");
+      }
+    } else {
+      await updateStatus(appInfo, appID, "", "failed", "Release not defined in barryci.json.");
+    }
+  }
+}
 
 async function cloneRepo(httpsURI, repoName) {
 
@@ -269,6 +360,25 @@ async function updateStatus(appInfo, appID, commit, status, text) {
   };
 }
 
+async function uploadGitHubRelease(appInfo) {
+  if (appInfo.github !== undefined) {
+    var githubClient = github.client(appInfo.github);
+    var ghrel = githubClient.release(appInfo.repo, appInfo.release_id);
+    var file = await readFileAsync(appInfo.upload_file);
+    try {
+      await ghrel.uploadAssets(file, {
+        name: path.basename(appInfo.upload_file),
+        contentType: 'application/zip',
+        uploadHost: 'uploads.github.com'
+      });
+      Promise.resolve(true);
+    } catch (error) {
+      console.log('Did not update commit status on repo ' + appInfo.repo + ': ' + error.message);
+      Promise.resolve(false);
+    }
+  }
+}
+
 async function updateGitHubStatus(appInfo, appID, commit, status, text) {
 
   var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
@@ -336,7 +446,13 @@ async function addRepoSetup(appInfo) {
 
   appInfo.ref = data.ref || "refs/heads/master";
   appInfo.build = data.build || [];
-  appInfo.release = data.release || {};
+  appInfo.release = data.release;
+
+  if (appInfo.release !== undefined) {
+    appInfo.release.do_build = data.release.do_build || true;
+    appInfo.release.post_commands = data.release.post_commands || [];
+    //appInfo.release.upload_file
+  }
 }
 
 module.exports = router;
