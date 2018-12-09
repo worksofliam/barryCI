@@ -1,5 +1,5 @@
 
-var ConfigClass = require('./config');
+var ConfigClass = require('./appConfig');
 
 const express = require('express');
 const app = express();
@@ -9,11 +9,7 @@ var session = require('express-session');
 
 var sockets = require('./sockets');
 
-var Config = new ConfigClass();
-Config.setDefaults(require('./defaultConfig'));
-
-Config.loadConfig('config.json');
-var config = Config.dataSet;
+ConfigClass.init('./config.json');
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -37,5 +33,5 @@ app.use('/public', express.static('./views/public'));
 app.use('/app', require('./app'));
 app.use('/', require('./routes'));
 
-app.listen(config.port, () => console.log(`barryCI listening on port ${config.port}!`));
-sockets.startServer(config.port+1);
+app.listen(ConfigClass.dataSet.port, () => console.log(`barryCI listening on port ${ConfigClass.dataSet.port}!`));
+sockets.startServer(ConfigClass.dataSet.port+1);

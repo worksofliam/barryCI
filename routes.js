@@ -24,9 +24,9 @@ var sockets = require('./sockets');
  * appInfo {<github>, <secret>, <ref>, <build[{command, args}]>, <release{do_build, post_commands, upload_file}> <repo>, <clone_url>, <repoDir>}
  */
 
-var ConfigClass = require('./config');
-var Config = new ConfigClass();
-Config.loadConfig('config.json');
+//**********************************************
+
+var Config = require('./appConfig');
 var config = Config.dataSet;
 
 //**********************************************
@@ -39,6 +39,7 @@ var github = require('octonode');
 
 //**********************************************
 
+var ConfigClass = require('./config/config');
 var buildMessagesConfig = new ConfigClass();
 buildMessagesConfig.loadConfig('buildMessages.json');
 var buildMessages = buildMessagesConfig.dataSet;

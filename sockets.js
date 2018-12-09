@@ -2,13 +2,6 @@ const WebSocket = require('ws');
 
 //**********************************************
 
-var ConfigClass = require('./config');
-var Config = new ConfigClass();
-Config.loadConfig('config.json');
-var config = Config.dataSet;
-
-//**********************************************
-
 var wss;
 
 module.exports = {

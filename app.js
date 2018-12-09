@@ -1,15 +1,11 @@
 
-const util = require('util');
-
 var express = require('express'), router = express.Router();
 
-var ConfigClass = require('./config');
+var Config = require('./appConfig');
+var config = Config.dataSet;
 
 //**********************************************
 
-var Config = new ConfigClass();
-Config.loadConfig('config.json');
-var config = Config.dataSet;
 
 //**********************************************
 
@@ -57,7 +53,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
     res.redirect('/app/create');
   } else {
     Config.dataSet.repos[id] = repo;
-    await Config.saveConfigAsync();
+    await Config.save();
 
     res.redirect('/app/manage');
   }
@@ -82,7 +78,7 @@ router.get(['/delete/:id'], async (req, res) => {
   var id = req.params.id;
 
   delete Config.dataSet.repos[id];
-  await Config.saveConfigAsync();
+  await Config.save();
 
   res.redirect('/app/manage');
 });
