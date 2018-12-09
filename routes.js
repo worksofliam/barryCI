@@ -53,12 +53,16 @@ router.get('/result/:appID/:commit', async (req, res) => {
   var id = req.params.appID;
   var commit = req.params.commit;
 
-  var message = buildMessages[id + commit];
+  if (buildMessages[id + commit] !== undefined) {
+    var body = {info: buildMessages[id + commit]};
 
-  if (message === undefined) {
-    res.send("No way");
+    if (req.session.username !== undefined)
+      body.username = req.session.username;
+
+    console.log(body);
+    res.render('result', body);
   } else {
-    res.render('result', message);
+    res.send("No way");
   }
 });
 

@@ -16,17 +16,18 @@ script(defer, src="/public/manage.js")
             th ID
             th Name
             th
+            th
         tbody
           each repo, key in repos
             tr
               td=key
               td=repo.name
-              td
-                .btn-group(role='group')
-                  a(href='/app/edit/' + key)
-                    button.btn.btn-primary(type='button', class='btn-sm') Edit
-                  if repo.clone_url !== undefined
-                    button.btn.btn-light(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') Trigger Build
+              td(align='right')
+                if repo.clone_url !== undefined
+                  button.btn.btn-light(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') Trigger Build
+              td(align='right')
+                a(href='/app/edit/' + key)
+                  button.btn.btn-primary(type='button', class='btn-sm') Edit
 
       p
         a(href='/app/create')

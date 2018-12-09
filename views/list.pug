@@ -4,7 +4,6 @@ script(defer, src="/public/statusUpdate.js")
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
 .container
-
   .row
     .col
       h3 Latest builds
@@ -33,7 +32,7 @@ script(defer, src="/public/statusUpdate.js")
               td(id=key+'repo')=status.repo
               td(id=key+'text')=status.text
               td(id=key+'time')=status.time
-              td(id=key+'viewBtn')
+              td(id=key+'viewBtn', align='right')
                 if status.url !== ""
                   a(href=status.url, target='_blank')
                     button.btn.btn-primary(type='button', class='btn-sm') View

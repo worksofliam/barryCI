@@ -8,8 +8,8 @@ link(href='/public/resultPage.css', rel='stylesheet')
 
   .row
     .col
-      h3.mb-4=project + ' build result'
-      .card.mb-3#infocard(class='border-' + panel)
+      h3.mb-4=info.project + ' build result'
+      .card.mb-3#infocard(class='border-' + info.panel)
         .card-body
           h5.card-title Information
           table(class='table table-condensed')
@@ -20,13 +20,13 @@ link(href='/public/resultPage.css', rel='stylesheet')
                 th Last updated
             tbody
               tr
-                td=commit
-                td=ref
-                td#timeUpdated=timestamp
+                td=info.commit
+                td=info.ref
+                td#timeUpdated=info.timestamp
     
   .row
     .col
       .card.mb-3
         .card-header Result
         .card-body
-          textarea#console.form-control(rows='20', readonly)=message
+          textarea#console.form-control(rows='20', readonly)=info.message

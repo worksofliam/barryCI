@@ -35,7 +35,7 @@ window.onload = function () {
         infocard.classList.remove('border-danger');
 
         infocard.classList.add('border-' + evt.status);
-        timeUpdated.innerText = new Date().toLocaleString();
+        timeUpdated.innerText = evt.time;
         break;
     }
   };
