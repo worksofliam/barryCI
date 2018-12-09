@@ -60,7 +60,6 @@ router.get('/result/:appID/:commit', async (req, res) => {
     if (req.session.username !== undefined)
       body.username = req.session.username;
 
-    console.log(body);
     res.render('result', body);
   } else {
     res.send("No way");

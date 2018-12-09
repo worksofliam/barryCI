@@ -12,13 +12,11 @@ module.exports = {
     
     wss.on('connection', function connection(ws) {
     
-      console.log('Client connected.');
       ws.on('message', function incoming(data) {
         data = JSON.parse(data);
         if (data.page !== undefined) {
           ws.page = data.page;
           ws.commit = data.commit;
-          console.log('Client page connected: ' + data.page);
         }
       });
     
