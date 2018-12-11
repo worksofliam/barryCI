@@ -39,6 +39,7 @@ window.onload = function () {
       cell.id = appID + 'time';
       cell = tableRow.insertCell(4);
       cell.id = appID + 'viewBtn';
+      cell.align = 'right';
     }
 
     switch (status.status) {
