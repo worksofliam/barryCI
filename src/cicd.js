@@ -168,7 +168,7 @@ async function push_event(req, res) {
   if (res !== undefined)
     res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
-  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
+  await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
   try {
     appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo);
@@ -199,6 +199,7 @@ async function push_event(req, res) {
       updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
     } else {
       console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
+      await updateStatus(appInfo, appID, "", "middle", "Build cancelled. (ref)");
     }
   }
 
@@ -218,7 +219,7 @@ async function release_event(req, res) {
 
   res.json({message: 'Release for ' + appInfo.repo + ' starting.'});
 
-  await updateStatus(appInfo, appID, "", "cloning", "Cloning repository.");
+  await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
   try {
     appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1], appInfo.release_branch);

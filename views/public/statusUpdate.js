@@ -42,7 +42,7 @@ window.onload = function () {
     }
 
     switch (status.status) {
-      case 'cloning':
+      case 'middle':
         tableRow.classList.value = 'table-active';
         break;
       case 'pending':
