@@ -182,24 +182,31 @@ async function push_event(req, res) {
   }
 
   if (appInfo.repoDir !== undefined) {
+    var configFound = false;
     try {
       await addRepoSetup(appInfo);
+      configFound = true;
     } catch (error) {
       console.log('----------------');
       console.log('No barryci.json file found in ' + appInfo.repo);
       console.log(error);
       console.log('----------------');
+      configFound = false;
     }
 
-    if (req.body.ref === appInfo.ref) {
-      updateGitHubStatus(appInfo, appID, commit, "pending", "Building application");
+    if (configFound) {
+      if (req.body.ref === appInfo.ref) {
+        updateGitHubStatus(appInfo, appID, commit, "pending", "Building application");
 
-      var result = await buildLocal(appInfo, appID, req.body.ref, commit);
+        var result = await buildLocal(appInfo, appID, req.body.ref, commit);
 
-      updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+        updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+      } else {
+        console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
+        await updateStatus(appInfo, appID, "", "not-started", "Build cancelled. (ref)");
+      }
     } else {
-      console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
-      await updateStatus(appInfo, appID, "", "middle", "Build cancelled. (ref)");
+      await updateStatus(appInfo, appID, "", "not-started", "Build cancelled: barryci.json missing.");
     }
   }
 
@@ -289,10 +296,10 @@ async function release_event(req, res) {
         }
 
       } else {
-        await updateStatus(appInfo, appID, "", "failure", "Release file not defined in barryci.json.");
+        await updateStatus(appInfo, appID, "", "not-started", "Release file not defined in barryci.json.");
       }
     } else {
-      await updateStatus(appInfo, appID, "", "failure", "Release not defined in barryci.json.");
+      await updateStatus(appInfo, appID, "", "not-started", "Release not defined in barryci.json.");
     }
   }
 }
