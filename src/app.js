@@ -6,7 +6,6 @@ var config = Config.dataSet;
 
 //**********************************************
 
-
 //**********************************************
 
 var statuses = require('./statuses');
@@ -21,7 +20,7 @@ router.get('/logout', function (req, res) {
 });
 
 router.get('/list', async (req, res) => {
-  res.render('list', { username: req.session.username, repos: config.repos, statuses: statuses });
+  res.render('list', { username: req.session.username, repos: config.repos });
 });
 
 router.get('/manage', async (req, res) => {

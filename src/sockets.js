@@ -1,10 +1,11 @@
 const WebSocket = require('ws');
 
+var statuses = require('./statuses');
+
 //**********************************************
 
 var wss;
-
-module.exports = {
+var sockets = {
   startServer: function(port) {
     wss = new WebSocket.Server({
       port: port
@@ -17,6 +18,10 @@ module.exports = {
         if (data.page !== undefined) {
           ws.page = data.page;
           ws.commit = data.commit;
+
+          if (ws.page === 'status') {
+            sockets.view.sendAllStatuses(ws);
+          }
         }
       });
     
@@ -74,6 +79,16 @@ module.exports = {
           }
         }
       });
+    },
+
+    sendAllStatuses: function(client) {
+      if (client.readyState === WebSocket.OPEN) {
+        if (client.page === "status") {
+          for (var appID in statuses) {
+            client.send(JSON.stringify({id: appID, data: statuses[appID]}));
+          }
+        }
+      }
     }
   },
 
@@ -91,3 +106,4 @@ module.exports = {
 
 }
 
+module.exports = sockets;

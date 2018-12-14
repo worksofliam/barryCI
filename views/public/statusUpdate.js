@@ -18,62 +18,84 @@ window.onload = function () {
     var appID = evt.id;
     var status = evt.data;
     
-    var tableRow = document.getElementById(appID + 'tr');
+    //First update our cards
 
-    if (tableRow === null) {
+    var card = document.getElementById(appID + 'card');
+
+    if (card === null) {
       //If it doesn't exist, create the row!
-      var table = document.getElementById("statuses");
+      var statuses = document.getElementById("statuses");
 
-      tableRow = table.insertRow();
-      tableRow.id = appID + 'tr';
-      
-      var cell;
-
-      cell = tableRow.insertCell(0);
-      cell.id = appID + 'name';
-      cell = tableRow.insertCell(1);
-      cell.id = appID + 'repo';
-      cell = tableRow.insertCell(2);
-      cell.id = appID + 'text';
-      cell = tableRow.insertCell(3);
-      cell.id = appID + 'time';
-      cell = tableRow.insertCell(4);
-      cell.id = appID + 'viewBtn';
-      cell.align = 'right';
+      statuses.innerHTML += '<div class="card mb-3" id="' + appID + 'card"><div class="card-body text-white"><div class="container"><div class="row"><div class="col-3"><div class="mx-auto text-center p-3"><i class="" id="' + appID + 'icon" style="font-size:6em"></i></div></div><div class="col"><h4 class="card-title" id="' + appID + 'title"></h4><h6 class="mb-2" id="' + appID + 'time"></h6><p class="card-text" id="' + appID + 'text"></p><div id="' + appID + 'viewBtn"></div></div></div></div></div></div>';
+      card = document.getElementById(appID + 'card');
     }
-
-    switch (status.status) {
-      case 'middle':
-        tableRow.classList.value = 'table-active';
-        break;
-      case 'pending':
-        tableRow.classList.value = 'table-warning';
-        break;
-      case 'success':
-        tableRow.classList.value = 'table-success';
-        break;
-      case 'failure':
-        tableRow.classList.value = 'table-danger';
-        break;
-    }
-
+    
     var row = {
-      name: document.getElementById(appID + 'name'),
-      repo: document.getElementById(appID + 'repo'),
+      icon: document.getElementById(appID + 'icon'),
+      title: document.getElementById(appID + 'title'),
       text: document.getElementById(appID + 'text'),
       time: document.getElementById(appID + 'time'),
       viewBtn: document.getElementById(appID + 'viewBtn'),
     };
 
-    row.name.innerText = status.name;
-    row.repo.innerText = status.repo;
+    var tableInsertClass = '';
+    switch (status.status) {
+      case 'middle':
+        tableInsertClass = 'table-dark';
+        card.classList.value = 'card bg-dark mb-3';
+        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
+        break;
+      case 'pending':
+        tableInsertClass = 'table-warning';
+        card.classList.value = 'card bg-warning mb-3';
+        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
+        break;
+      case 'success':
+        tableInsertClass = 'table-success';
+        card.classList.value = 'card bg-success mb-3';
+        row.icon.classList.value = 'fa fa-check';
+        break;
+      case 'failure':
+        tableInsertClass = 'table-danger';
+        card.classList.value = 'card bg-danger mb-3';
+        row.icon.classList.value = 'fa fa-times';
+        break;
+    }
+
+    row.title.innerText = status.name + ' (' + status.repo + ')';
     row.text.innerText = status.text;
     row.time.innerText = status.time;
 
     if (status.url !== "") {
-      row.viewBtn.innerHTML = '<a href="' + status.url + '" target="_target"><button class="btn btn-primary btn-sm" type="button">View</button></a>';
+      row.viewBtn.innerHTML = '<a href="' + status.url + '" target="_target"><button class="btn btn-active btn-sm" type="button">View</button></a>';
     } else {
       row.viewBtn.innerHTML = '';
+    }
+
+    //Now we also need to insert into the updates table!
+
+    var table = document.getElementById("latest");
+
+    tableRow = table.insertRow(0);
+    tableRow.classList.value = tableInsertClass + ' mt-3';
+    
+    var cell;
+
+    cell = tableRow.insertCell(0);
+    cell.innerText = status.name;
+    cell = tableRow.insertCell(1);
+    cell.innerText = status.repo;
+    cell = tableRow.insertCell(2);
+    cell.innerText = status.text;
+    cell = tableRow.insertCell(3);
+    cell.innerText = status.time;
+    cell.align = 'right';
+
+    //Then also remove items if there are too many
+    
+    var tableRows = table.getElementsByTagName('tr');
+    if (tableRows.length > 12) {
+      table.deleteRow(tableRows.length-1);
     }
   };
 }

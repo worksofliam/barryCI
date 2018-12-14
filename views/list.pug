@@ -3,36 +3,12 @@ script(defer, src="/public/statusUpdate.js")
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
-.container
+.container-fluid
   .row
-    .col
-      h3 Latest builds
-      table(id='statuses', class='table table-hover')
-        thead
-          tr
-            th Name
-            th Repo
-            th Status
-            th Time
-            th
-        tbody
-          - var color = ''
-          each status, key in statuses
-            case status.status
-              when 'middle'
-                - color = 'table-active'
-              when 'pending'
-                - color = 'table-warning'
-              when 'success'
-                - color = 'table-success'
-              when 'failure'
-                - color = 'table-danger'
-            tr(id=key + 'tr', class=color)
-              td(id=key+'name')=status.name
-              td(id=key+'repo')=status.repo
-              td(id=key+'text')=status.text
-              td(id=key+'time')=status.time
-              td(id=key+'viewBtn', align='right')
-                if status.url !== ""
-                  a(href=status.url, target='_blank')
-                    button.btn.btn-primary(type='button', class='btn-sm') View
+    .col-1
+    .col-5
+      #statuses
+        //This is handled via the sockets now!
+    .col-4
+      h3.mb-3 Live history
+      table(id='latest', class='table table-hover')
