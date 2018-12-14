@@ -17,18 +17,17 @@ window.onload = function () {
 
     var appID = evt.id;
     var status = evt.data;
+    var statuses = document.getElementById("statuses");
     
     //First update our cards
-
     var card = document.getElementById(appID + 'card');
 
-    if (card === null) {
-      //If it doesn't exist, create the row!
-      var statuses = document.getElementById("statuses");
+    //Delete the old card
+    if (card !== null) card.parentNode.removeChild(card);
 
-      statuses.innerHTML += '<div class="card mb-3" id="' + appID + 'card"><div class="card-body text-white"><div class="container"><div class="row"><div class="col-3"><div class="mx-auto text-center p-3"><i class="" id="' + appID + 'icon" style="font-size:6em"></i></div></div><div class="col"><h4 class="card-title" id="' + appID + 'title"></h4><h6 class="mb-2" id="' + appID + 'time"></h6><p class="card-text" id="' + appID + 'text"></p><div id="' + appID + 'viewBtn"></div></div></div></div></div></div>';
-      card = document.getElementById(appID + 'card');
-    }
+    //Add the new status to the top
+    statuses.innerHTML = '<div class="card mb-3" id="' + appID + 'card"><div class="card-body text-white"><div class="container"><div class="row"><div class="col-3"><div class="mx-auto text-center p-3"><i class="" id="' + appID + 'icon" style="font-size:6em"></i></div></div><div class="col"><h4 class="card-title" id="' + appID + 'title"></h4><h6 class="mb-2" id="' + appID + 'time"></h6><p class="card-text" id="' + appID + 'text"></p><div id="' + appID + 'viewBtn"></div></div></div></div></div></div>' + statuses.innerHTML;
+    card = document.getElementById(appID + 'card');
     
     var row = {
       icon: document.getElementById(appID + 'icon'),
