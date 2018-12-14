@@ -39,12 +39,6 @@ window.onload = function () {
 
     var tableInsertClass = '';
     switch (status.status) {
-      case 'not-started':
-        tableInsertClass = 'fa fa-times';
-        card.classList.value = 'card bg-dark mb-3';
-        row.icon.classList.value = 'fa fa-times';
-        break;
-
       case 'cloning':
       case 'middle':
         tableInsertClass = 'fa fa-wrench';
@@ -67,6 +61,12 @@ window.onload = function () {
       case 'failure':
         tableInsertClass = 'fa fa-times text-red';
         card.classList.value = 'card bg-danger mb-3';
+        row.icon.classList.value = 'fa fa-times';
+        break;
+      
+      case 'not-started':
+        tableInsertClass = 'fa fa-times text-red';
+        card.classList.value = 'card bg-dark mb-3';
         row.icon.classList.value = 'fa fa-times';
         break;
     }
