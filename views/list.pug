@@ -1,5 +1,6 @@
 include ./head.pug
 script(defer, src="/public/statusUpdate.js")
+link(href='/public/list.css', rel='stylesheet')
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -10,5 +11,5 @@ script(defer, src="/public/statusUpdate.js")
       #statuses
         //This is handled via the sockets now!
     .col-4
-      h3.mb-3 Live history
-      table(id='latest', class='table table-hover')
+      h3.mb-3 Latest history
+      table(id='latest', class='history table table-hover table-borderless')

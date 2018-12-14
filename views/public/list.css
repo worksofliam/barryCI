@@ -1,0 +1,11 @@
+.history td {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.text-red {
+  color: red;
+}
+.text-green {
+  color: green;
+}

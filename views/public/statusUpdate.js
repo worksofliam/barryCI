@@ -40,32 +40,32 @@ window.onload = function () {
     var tableInsertClass = '';
     switch (status.status) {
       case 'not-started':
-        tableInsertClass = 'bg-dark text-white';
+        tableInsertClass = 'fa fa-times';
         card.classList.value = 'card bg-dark mb-3';
         row.icon.classList.value = 'fa fa-times';
         break;
 
       case 'cloning':
       case 'middle':
-        tableInsertClass = 'bg-dark text-white';
+        tableInsertClass = 'fa fa-wrench';
         card.classList.value = 'card bg-dark mb-3';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
         break;
 
       case 'pending':
-        tableInsertClass = 'bg-warning text-white';
+        tableInsertClass = 'fa fa-wrench';
         card.classList.value = 'card bg-warning mb-3';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
         break;
 
       case 'success':
-        tableInsertClass = 'bg-success text-white';
+        tableInsertClass = 'fa fa-check text-green';
         card.classList.value = 'card bg-success mb-3';
         row.icon.classList.value = 'fa fa-check';
         break;
         
       case 'failure':
-        tableInsertClass = 'bg-danger text-white';
+        tableInsertClass = 'fa fa-times text-red';
         card.classList.value = 'card bg-danger mb-3';
         row.icon.classList.value = 'fa fa-times';
         break;
@@ -86,14 +86,13 @@ window.onload = function () {
     var table = document.getElementById("latest");
 
     tableRow = table.insertRow(0);
-    tableRow.classList.value = tableInsertClass + ' mt-3';
     
     var cell;
 
     cell = tableRow.insertCell(0);
-    cell.innerText = status.name;
+    cell.innerHTML = '<div class="' + tableInsertClass + '" />';
     cell = tableRow.insertCell(1);
-    cell.innerText = status.repo;
+    cell.innerText = status.name;
     cell = tableRow.insertCell(2);
     cell.innerText = status.text;
     cell = tableRow.insertCell(3);
