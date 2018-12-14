@@ -41,22 +41,22 @@ window.onload = function () {
     var tableInsertClass = '';
     switch (status.status) {
       case 'middle':
-        tableInsertClass = 'table-dark';
+        tableInsertClass = 'bg-dark text-white';
         card.classList.value = 'card bg-dark mb-3';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
         break;
       case 'pending':
-        tableInsertClass = 'table-warning';
+        tableInsertClass = 'bg-warning text-white';
         card.classList.value = 'card bg-warning mb-3';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
         break;
       case 'success':
-        tableInsertClass = 'table-success';
+        tableInsertClass = 'bg-success text-white';
         card.classList.value = 'card bg-success mb-3';
         row.icon.classList.value = 'fa fa-check';
         break;
       case 'failure':
-        tableInsertClass = 'table-danger';
+        tableInsertClass = 'bg-danger text-white';
         card.classList.value = 'card bg-danger mb-3';
         row.icon.classList.value = 'fa fa-times';
         break;
