@@ -203,7 +203,6 @@ async function push_event(req, res) {
         updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
       } else {
         console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
-        await updateStatus(appInfo, appID, "", "not-started", "Build cancelled. (ref)");
       }
     } else {
       await updateStatus(appInfo, appID, "", "not-started", "Build cancelled: barryci.json missing.");
