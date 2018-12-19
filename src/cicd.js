@@ -491,7 +491,7 @@ function execPromise(command, args, options) {
       sockets.closeClient(appID);
       if (code !== 0) {
         if (output.length > 500)
-          output = output.substr(id.length - 5);
+          output = output.substr(output.length - 500);
 
         reject(output);
       } else {
