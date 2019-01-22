@@ -391,12 +391,36 @@ async function buildLocal(appInfo, appID, ref, commit) {
   sockets.results.pushStandardContent(appID, commit, "End of build.");
   sockets.results.setStatus(appID, commit, messageResult.panel);
 
+  //Unit tests
+
+  if (appInfo.test !== undefined) {
+    command = appInfo.test;
+    var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
+
+    if (testResult.result) {
+      messageResult.panel = 'success';
+    } else {
+      messageResult.status = FAILED;
+      messageResult.message += '\n\rUnit tests failed.';
+      messageResult.panel = 'danger';
+    }
+
+    messageResult.test = testResult;
+
+    sockets.results.pushStandardContent(appID, commit, "End of unit tests.");
+    sockets.results.setStatus(appID, commit, messageResult.panel);
+  }
+
   buildMessages[appID + commit] = messageResult;
   await buildMessagesConfig.saveConfigAsync();
 
   return Promise.resolve({
     status: messageResult.status
   });
+}
+
+async function runTests(appInfo) {
+
 }
 
 async function updateStatus(appInfo, appID, commit, status, text) {
@@ -488,7 +512,6 @@ function execPromise(command, args, options) {
     });
 
     child.on('close', (code) => {
-      sockets.closeClient(appID);
       if (code !== 0) {
         if (output.length > 500)
           output = output.substr(id.length - 5);
@@ -501,11 +524,58 @@ function execPromise(command, args, options) {
   });
 }
 
+function execPromiseTests(command, args, options) {
+  return new Promise((resolve, reject) => {
+    var output = "";
+    const child = spawn(command, args, options);
+
+    var appID = options.appID;
+    var commit = options.commit;
+
+    var tests = {
+      result: true,
+      list: []
+    }
+
+    child.stdout.on('data', (data) => {
+      if (data.indexOf(':') >= 0) {
+        var result = data.split(':');
+
+        switch (result[0]) {
+          case 's': //Success
+            tests.list.push({name: result[1], success: true});
+            break;
+          case 'f': //Fail
+            tests.result = false;
+            tests.list.push({name: result[1], success: true});
+            break;
+        }
+      }
+
+      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
+    });
+
+    child.stderr.on('data', (data) => {
+      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
+    });
+
+    child.on('error', (data) => {
+      var message = (data.code + ' (' + data.errno + ') - ' + data.path + ': ' + data.message);
+      sockets.results.pushStandardContent(appID, commit, '\n\r' + message + '\n\r');
+    });
+
+    child.on('close', (code) => {
+      resolve(tests);
+    });
+  });
+}
+
 async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
   appInfo.ref = data.ref || "refs/heads/master";
   appInfo.build = data.build || [];
+  appInfo.test = data.test;
   appInfo.release = data.release;
 
   if (appInfo.release !== undefined) {
