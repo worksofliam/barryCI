@@ -514,7 +514,7 @@ function execPromise(command, args, options) {
     child.on('close', (code) => {
       if (code !== 0) {
         if (output.length > 500)
-          output = output.substr(id.length - 5);
+          output = output.substr(output.length - 500);
 
         reject(output);
       } else {
