@@ -24,17 +24,15 @@ link(href='/public/list.css', rel='stylesheet')
                 td=info.commit
                 td=info.ref
                 td#timeUpdated=info.timestamp
-    
+
   .row
     .col
-      .card.mb-3
-        .card-header Result
-        .card-body
-          textarea#console.form-control(rows='20', readonly)=info.message
-
-  if info.test !== undefined
-    .row
-      .col
+      if info.test === undefined
+        .card.mb-3
+          .card-header Build result
+          .card-body
+            textarea#console.form-control(rows='20', readonly)=info.message
+      else
         .card.mb-3
           .card-header Unit Test results
           .card-body
