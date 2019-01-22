@@ -388,7 +388,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
     messageResult.panel = 'success';
   }
 
-  sockets.results.pushStandardContent(appID, commit, "End of build.");
+  sockets.results.pushStandardContent(appID, commit, "End of build.\n\r");
   sockets.results.setStatus(appID, commit, messageResult.panel);
 
   //Unit tests
