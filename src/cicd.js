@@ -393,7 +393,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
   //Unit tests
 
-  if (appInfo.test !== undefined) {
+  if (appInfo.test !== undefined && messageResult.status !== FAILED) {
     command = appInfo.test;
     var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
 
