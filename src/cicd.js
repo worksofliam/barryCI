@@ -397,6 +397,8 @@ async function buildLocal(appInfo, appID, ref, commit) {
     command = appInfo.test;
     var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
 
+    console.log(testResult);
+
     if (testResult.result) {
       messageResult.panel = 'success';
     } else {
@@ -538,8 +540,10 @@ function execPromiseTests(command, args, options) {
     }
 
     child.stdout.on('data', (data) => {
+      data = data.toString('utf8');
       if (data.indexOf(':') >= 0) {
         var result = data.split(':');
+        result[1] = result[1].substr(0, result[1].indexOf('\n'));
 
         switch (result[0]) {
           case 's': //Success
@@ -547,7 +551,7 @@ function execPromiseTests(command, args, options) {
             break;
           case 'f': //Fail
             tests.result = false;
-            tests.list.push({name: result[1], success: true});
+            tests.list.push({name: result[1], success: false});
             break;
         }
       }
