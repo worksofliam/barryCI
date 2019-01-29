@@ -529,7 +529,6 @@ function execPromise(command, args, options) {
 
 function execPromiseTests(command, args, options) {
   return new Promise((resolve, reject) => {
-    var output = "";
     const child = spawn(command, args, options);
 
     var appID = options.appID;
@@ -541,21 +540,23 @@ function execPromiseTests(command, args, options) {
     }
 
     child.stdout.on('data', (data) => {
-      data = data.toString('utf8');
-      if (data.indexOf(':') >= 0) {
-        var result = data.split(':');
-        result[1] = result[1].substr(0, result[1].indexOf('\n'));
+      try {
+        data = data.toString('utf8');
+        if (data.indexOf(':') >= 0) {
+          var result = data.split(':');
+          result[1] = result[1].substr(0, result[1].indexOf('\n'));
 
-        switch (result[0]) {
-          case 's': //Success
-            tests.list.push({name: result[1], success: true});
-            break;
-          case 'f': //Fail
-            tests.result = false;
-            tests.list.push({name: result[1], success: false});
-            break;
+          switch (result[0]) {
+            case 's': //Success
+              tests.list.push({name: result[1], success: true});
+              break;
+            case 'f': //Fail
+              tests.result = false;
+              tests.list.push({name: result[1], success: false});
+              break;
+          }
         }
-      }
+      } catch (e) {}
 
       sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
