@@ -422,7 +422,12 @@ async function buildLocal(appInfo, appID, ref, commit) {
   console.log('Saving buildMessages.');
 
   buildMessages[appID + commit] = messageResult;
-  await buildMessagesConfig.saveConfigAsync();
+  try {
+    await buildMessagesConfig.saveConfigAsync();
+  } catch (e) {
+    console.log('Couldn\'t save buildMessages.');
+    console.log(e);
+  }
 
   return Promise.resolve({
     stage: stage,
@@ -544,23 +549,21 @@ function execPromiseTests(command, args, options) {
     }
 
     child.stdout.on('data', (data) => {
-      try {
-        data = data.toString('utf8');
-        if (data.indexOf(':') >= 0) {
-          var result = data.split(':');
-          result[1] = result[1].substr(0, result[1].indexOf('\n'));
+      data = data.toString('utf8');
+      if (data.indexOf(':') >= 0) {
+        var result = data.split(':');
+        result[1] = result[1].substr(0, result[1].indexOf('\n'));
 
-          switch (result[0]) {
-            case 's': //Success
-              tests.list.push({name: result[1], success: true});
-              break;
-            case 'f': //Fail
-              tests.result = false;
-              tests.list.push({name: result[1], success: false});
-              break;
-          }
+        switch (result[0]) {
+          case 's': //Success
+            tests.list.push({name: result[1], success: true});
+            break;
+          case 'f': //Fail
+            tests.result = false;
+            tests.list.push({name: result[1], success: false});
+            break;
         }
-      } catch (e) {}
+      }
 
       sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
     });
