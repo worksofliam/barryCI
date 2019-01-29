@@ -421,10 +421,6 @@ async function buildLocal(appInfo, appID, ref, commit) {
   });
 }
 
-async function runTests(appInfo) {
-
-}
-
 async function updateStatus(appInfo, appID, commit, status, text) {
   var url = "";
 
