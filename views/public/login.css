@@ -7,7 +7,7 @@
  body, html {
   height: 100%;
   background-repeat: no-repeat;
-  background-image: linear-gradient(rgb(241, 127, 11), rgb(62, 57, 32));
+  background-image: white;
 }
 
 .card-container.card {
@@ -82,6 +82,7 @@
   direction: ltr;
   height: 44px;
   font-size: 16px;
+  margin-bottom: 10px;
 }
 
 .form-signin input[type=email],
@@ -107,12 +108,11 @@
 
 .btn.btn-signin {
   /*background-color: #4d90fe; */
-  background-color: rgb(104, 145, 162);
+  background-color: rgb(241, 127, 11);
   /* background-color: linear-gradient(rgb(104, 145, 162), rgb(12, 97, 33));*/
-  padding: 0px;
   font-weight: 700;
   font-size: 14px;
-  height: 36px;
+  height: 44px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
@@ -126,7 +126,7 @@
 .btn.btn-signin:hover,
 .btn.btn-signin:active,
 .btn.btn-signin:focus {
-  background-color: rgb(12, 97, 33);
+  background-color: rgb(241, 127, 100);
 }
 
 .forgot-password {
