@@ -200,7 +200,7 @@ async function push_event(req, res) {
 
         var result = await buildLocal(appInfo, appID, req.body.ref, commit);
 
-        updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+        updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), result.stage + " " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
       } else {
         console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
       }
@@ -333,6 +333,8 @@ async function cloneRepo(httpsURI, repoName, branch) {
 
 async function buildLocal(appInfo, appID, ref, commit) {
   
+  var stage = '';
+
   console.log('Build for ' + appInfo.repo + ' starting.');
   var messageResult = {
     project: appInfo.repo,
@@ -347,6 +349,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
   buildMessages[appID + commit] = messageResult;
   sockets.results.setStatus(appID, commit, messageResult.panel);
 
+  stage = 'Build';
   var command, stdout, stderr;
   try {
     if (appInfo.build !== undefined) {
@@ -393,7 +396,8 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
   //Unit tests
 
-  if (appInfo.test !== undefined) {
+  if (appInfo.test !== undefined && messageResult.status !== FAILED) {
+    stage = 'Testing';
     command = appInfo.test;
     var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
 
@@ -417,6 +421,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
   await buildMessagesConfig.saveConfigAsync();
 
   return Promise.resolve({
+    stage: stage,
     status: messageResult.status
   });
 }
