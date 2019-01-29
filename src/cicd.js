@@ -395,8 +395,10 @@ async function buildLocal(appInfo, appID, ref, commit) {
   sockets.results.setStatus(appID, commit, messageResult.panel);
 
   //Unit tests
+  var runTests = appInfo.test !== undefined && messageResult.status !== FAILED;
+  console.log('Running unit tests: ' + runTests);
 
-  if (appInfo.test !== undefined && messageResult.status !== FAILED) {
+  if (runTests) {
     stage = 'Testing';
     command = appInfo.test;
     var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
@@ -416,6 +418,8 @@ async function buildLocal(appInfo, appID, ref, commit) {
     sockets.results.pushStandardContent(appID, commit, "End of unit tests.");
     sockets.results.setStatus(appID, commit, messageResult.panel);
   }
+
+  console.log('Saving buildMessages.');
 
   buildMessages[appID + commit] = messageResult;
   await buildMessagesConfig.saveConfigAsync();
