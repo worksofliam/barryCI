@@ -28,6 +28,19 @@ include ./head.pug
           .form-group
             label Build name
             input.form-control(type='text', name='name', value=repo.name, placeholder='Build name', required)
+        
+        hr
+        
+        .form-row
+          .form-group
+            label Clone URL
+            input.form-control(type='text', name='clone_url', value=repo.clone_url, placeholder='https://')
+            small.form-text.text-muted.mt-3
+              ul
+                li A link to the GitHub clone URL of the project.
+                li A local repository if you are not connecting with GitHub.
+        
+        hr
 
         .form-row
           .form-group
@@ -40,14 +53,6 @@ include ./head.pug
             label Secret
             input.form-control(type='password', name='secret', value=repo.secret, placeholder='')
             small.form-text.text-mutedThis Recommended so no one else can trigger unwanted builds.
-        
-        hr
-        
-        .form-row
-          .form-group
-            label Repo HTTPS clone URL
-            input.form-control(type='text', name='clone_url', value=repo.clone_url, placeholder='https://')
-            small.form-text.text-mutedThis Paste a link to the HTTPS clone URL to be able to trigger builds from barryCI.
 
         hr
 
@@ -60,10 +65,20 @@ include ./head.pug
                 a(href='/app/delete/' + id, type='button', class='btn btn-danger') Delete
 
       if id !== undefined
-        hr
-
-        h3 Webhook URL
-        p This is the URL used for the (push and release only) webhook.
-        pre=pushurl
+        
+        table(class='table table-condensed')
+          thead
+            tr
+              th Usage
+              th Link
+          tbody
+            tr
+              td URL used for the (push and release only) webhook.
+              td
+                code=githuburl
+            tr
+              td Call this URL to invoke a build of the application.
+              td
+                code=buildurl
 
     .col-md-1
