@@ -8,23 +8,21 @@ script(defer, src="/public/manage.js")
   .row
     .col-md-1
     .col-md-10
-      h3 Build configurations
+      h3.mb-3 Build configurations
 
       table(class='table table-hover')
         thead
           tr
-            th ID
             th Name
             th
             th
         tbody
           each repo, key in repos
             tr
-              td=key
               td=repo.name
               td(align='right')
                 if repo.clone_url !== undefined
-                  button.btn.btn-light(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') Trigger Build
+                  button.btn.btn-warning(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') Trigger Build
               td(align='right')
                 a(href='/app/edit/' + key)
                   button.btn.btn-primary(type='button', class='btn-sm') Edit
