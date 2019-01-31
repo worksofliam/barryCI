@@ -174,7 +174,7 @@ include ./head.pug
 
         .alert.alert-primary
           pre.
-            CREATE TABLE INVENTORY 
+            CREATE TABLE BIN_LIB/INVENTORY 
               (PARTNO   SMALLINT NOT NULL,
               DESCR    VARCHAR(24),
               QONHAND  INT,
@@ -186,7 +186,7 @@ include ./head.pug
 
         .alert.alert-primary
           pre.
-            CREATE OR REPLACE TABLE INVENTORY 
+            CREATE OR REPLACE TABLE BIN_LIB/INVENTORY 
               (PART_NUMBER FOR PARTNO        SMALLINT NOT NULL,
               DESCRIPTION FOR DESCR         VARGRAPHIC(500) CCSID 1200,
               QUANTITY_ON_HAND FOR QONHAND  INT,
@@ -194,11 +194,16 @@ include ./head.pug
                     NOT NULL GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP,
               PRIMARY KEY(PARTNO))
 
-        p An example makefile which could implement this.
+        p 
+          span An example makefile which could implement this. We must replace a library variable with the library we are going to build in. We do this using 
+          span sed
+          span.
 
         .alert.alert-primary
           pre.
+            BIN_LIB=DBTEST
             all: inventory.sql
 
             %.sql:
+              sed "s/BIN_LIB/$(BIN_LIB)/g" ./$*.sql
               system "RUNSQLSTM SRCSTMF('./$*.sql') COMMIT(*NONE)"
