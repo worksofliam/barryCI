@@ -83,10 +83,6 @@ router.get(['/delete/:id'], async (req, res) => {
   res.redirect('/app/manage');
 });
 
-router.get('/help', (req, res) => {
-  res.render('help', { username: req.session.username });
-});
-
 function makeid() {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
