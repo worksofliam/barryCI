@@ -54,24 +54,25 @@ include ./head.pug
                 pre "upload_file": "./release/release.savf"
 
         h4 Example
-        pre.           
-          {
-            "build": [{
-              "command": "gmake",
-              "args": ["BIN_LIB=ILEUSION"]
-            }],
-            "test": {
-              "command": "gmake",
-              "args": ["tests"]
-            },
-            "release": {
-              "post_commands": [{
+        .alert.alert-secondary
+          pre.           
+            {
+              "build": [{
                 "command": "gmake",
-                "args": ["release", "BIN_LIB=ILEUSION"]
+                "args": ["BIN_LIB=ILEUSION"]
               }],
-              "upload_file": "./release/release.savf"
+              "test": {
+                "command": "gmake",
+                "args": ["tests"]
+              },
+              "release": {
+                "post_commands": [{
+                  "command": "gmake",
+                  "args": ["release", "BIN_LIB=ILEUSION"]
+                }],
+                "upload_file": "./release/release.savf"
+              }
             }
-          }
 
   .row
     .col
@@ -103,14 +104,15 @@ include ./head.pug
           code makefile
           span .
 
-        pre.
-          tests: json1.test json2.test json3.test
-            @echo "Ran tests!"
-          
-          %.test:
-            -system -si "CRTRPGMOD MODULE($(BIN_LIB)/$*) SRCSTMF('test/$*.rpgle') DBGVIEW($(DBGVIEW))"
-            -system -si "CRTPGM PGM($(BIN_LIB)/$*) BNDDIR($(BIN_LIB)/NOXDB)"
-            -system "call $(BIN_LIB)/$*" && echo "s:$*.rpgle" || { echo "f:$*.rpgle"; exit 1; }
+        .alert.alert-secondary
+          pre.
+            tests: json1.test json2.test json3.test
+              @echo "Ran tests!"
+            
+            %.test:
+              -system -si "CRTRPGMOD MODULE($(BIN_LIB)/$*) SRCSTMF('test/$*.rpgle') DBGVIEW($(DBGVIEW))"
+              -system -si "CRTPGM PGM($(BIN_LIB)/$*) BNDDIR($(BIN_LIB)/NOXDB)"
+              -system "call $(BIN_LIB)/$*" && echo "s:$*.rpgle" || { echo "f:$*.rpgle"; exit 1; }
 
         p Programs are simply ran. If the program crashes it fails, others is successful.
 
@@ -129,21 +131,74 @@ include ./head.pug
           code makefile
           span .
 
-        pre.
-          release:
-            @echo " -- Creating release. --"
-            @echo " -- Creating save file. --"
-            system "CRTSAVF FILE($(BIN_LIB)/RELEASE)"
-            system "SAVLIB LIB($(BIN_LIB)) DEV(*SAVF) SAVF($(BIN_LIB)/RELEASE) OMITOBJ((RELEASE *FILE))"
-            -rm -r release
-            -mkdir release
-            system "CPYTOSTMF FROMMBR('/QSYS.lib/$(BIN_LIB).lib/RELEASE.FILE') TOSTMF('./release/release.savf') STMFOPT(*REPLACE) STMFCCSID(1252) CVTDTA(*NONE)"
-            @echo " -- Cleaning up... --"
-            system "DLTOBJ OBJ($(BIN_LIB)/RELEASE) OBJTYPE(*FILE)"
-            @echo " -- Release created! --"
-            @echo ""
-            @echo "To install the release, run:"
-            @echo "  > CRTLIB $(BIN_LIB)"
-            @echo "  > CPYFRMSTMF FROMSTMF('./release/release.savf') TOMBR('/QSYS.lib/$(BIN_LIB).lib/RELEASE.FILE') MBROPT(*REPLACE) CVTDTA(*NONE)"
-            @echo "  > RSTLIB SAVLIB($(BIN_LIB)) DEV(*SAVF) SAVF($(BIN_LIB)/RELEASE)"
-            @echo ""
+        .alert.alert-secondary
+          pre.
+            release:
+              @echo " -- Creating release. --"
+              @echo " -- Creating save file. --"
+              system "CRTSAVF FILE($(BIN_LIB)/RELEASE)"
+              system "SAVLIB LIB($(BIN_LIB)) DEV(*SAVF) SAVF($(BIN_LIB)/RELEASE) OMITOBJ((RELEASE *FILE))"
+              -rm -r release
+              -mkdir release
+              system "CPYTOSTMF FROMMBR('/QSYS.lib/$(BIN_LIB).lib/RELEASE.FILE') TOSTMF('./release/release.savf') STMFOPT(*REPLACE) STMFCCSID(1252) CVTDTA(*NONE)"
+              @echo " -- Cleaning up... --"
+              system "DLTOBJ OBJ($(BIN_LIB)/RELEASE) OBJTYPE(*FILE)"
+              @echo " -- Release created! --"
+              @echo ""
+              @echo "To install the release, run:"
+              @echo "  > CRTLIB $(BIN_LIB)"
+              @echo "  > CPYFRMSTMF FROMSTMF('./release/release.savf') TOMBR('/QSYS.lib/$(BIN_LIB).lib/RELEASE.FILE') MBROPT(*REPLACE) CVTDTA(*NONE)"
+              @echo "  > RSTLIB SAVLIB($(BIN_LIB)) DEV(*SAVF) SAVF($(BIN_LIB)/RELEASE)"
+              @echo ""
+
+  .row
+    .col
+      .jumbotron
+        .display-4 Handling table changes
+        p
+          span Db2 for i provides the 
+          code ON REPLACE
+          span  syntax, which allows for table columns to be updated without the loss of data and without maintaining alter statements. This information can be found on the 
+          a(href='https://www.ibm.com/support/knowledgecenter/en/ssw_ibm_i_73/sqlp/rbafyreplacetable.htm') Db2 for i wiki
+          span .
+
+        p
+          span Using CREATE OR REPLACE TABLE lets you consolidate the master definition of a table into one statement. You do not need to maintain the source for the original CREATE TABLE statement plus a complex list of ALTER TABLE statements needed to recreate the most current version of a table. This CREATE TABLE statement can be executed to deploy the current definition of the table either as a new table or to replace a prior version of the table.
+          span There are options to either keep the existing data in the table or to clear the data from the table during the replace. The default is to keep all data. If you elect to clear all the data, your new table definition does not need to be compatible with the original version. 
+        p
+          b In all cases
+          span , other objects that depend on the table, such as referential constraints, triggers, and views, must remain satisfied 
+          b or the replace will fail.
+
+        p Suppose your original table was this basic INVENTORY table in an initial build.
+
+        .alert.alert-primary
+          pre.
+            CREATE TABLE INVENTORY 
+              (PARTNO   SMALLINT NOT NULL,
+              DESCR    VARCHAR(24),
+              QONHAND  INT,
+              PRIMARY KEY(PARTNO))
+        
+        p Perhaps over time, you have updated the column names to be more descriptive, changed the DESCR column to be a longer Unicode column, and added a timestamp column for when the row was last updated. The following statement reflects all of these changes and can be executed against any prior version of the table, as long as the column names can be matched to the prior column names and the data types are compatible.
+
+        p Also consider that if you commit this, your build system (e.g. GNU Make) will run the statement, update the table and retain the data.
+
+        .alert.alert-primary
+          pre.
+            CREATE OR REPLACE TABLE INVENTORY 
+              (PART_NUMBER FOR PARTNO        SMALLINT NOT NULL,
+              DESCRIPTION FOR DESCR         VARGRAPHIC(500) CCSID 1200,
+              QUANTITY_ON_HAND FOR QONHAND  INT,
+              LAST_MODIFIED FOR MODIFIED    TIMESTAMP
+                    NOT NULL GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP,
+              PRIMARY KEY(PARTNO))
+
+        p An example makefile which could implement this.
+
+        .alert.alert-primary
+          pre.
+            all: inventory.sql
+
+            %.sql:
+              system "RUNSQLSTM SRCSTMF('./$*.sql') COMMIT(*NONE)"
