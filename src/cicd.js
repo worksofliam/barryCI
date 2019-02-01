@@ -164,6 +164,7 @@ async function push_event(req, res) {
 
   appInfo.repo = req.body.repository.full_name;
   appInfo.clone_url = req.body.repository.clone_url;
+  appInfo.sender = req.body.sender;
 
   if (res !== undefined)
     res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
@@ -220,6 +221,8 @@ async function release_event(req, res) {
   appInfo.tag_name = commit;
   appInfo.repo = req.body.repository.full_name;
   appInfo.clone_url = req.body.repository.clone_url;
+  appInfo.sender = req.body.sender;
+  
   appInfo.release_id = req.body.release.id;
   appInfo.release_branch = req.body.release.target_commitish;
 
@@ -334,6 +337,7 @@ async function cloneRepo(httpsURI, repoName, branch) {
 async function buildLocal(appInfo, appID, ref, commit) {
   
   var stage = '';
+  var timers = [Date.now(), null];
 
   console.log('Build for ' + appInfo.repo + ' starting.');
   var messageResult = {
@@ -343,11 +347,19 @@ async function buildLocal(appInfo, appID, ref, commit) {
     commit: commit,
     timestamp: new Date().toLocaleString(),
     message: 'Building application.\n\r',
-    panel: 'warning'
+    panel: 'warning',
+    time_length: ''
+  }
+
+  if (appInfo.sender !== undefined) {
+    messageResult.pusher = {
+      user: appInfo.sender.login,
+      link: appInfo.sender.html_url
+    }
   }
 
   buildMessages[appID + commit] = messageResult;
-  sockets.results.setStatus(appID, commit, messageResult.panel);
+  sockets.results.setStatus(appID, commit, messageResult.panel, 'In progress.');
 
   stage = 'Build';
   var command, stdout, stderr;
@@ -392,7 +404,6 @@ async function buildLocal(appInfo, appID, ref, commit) {
   }
 
   sockets.results.pushStandardContent(appID, commit, "End of build.\n\r");
-  sockets.results.setStatus(appID, commit, messageResult.panel);
 
   //Unit tests
   var runTests = appInfo.test !== undefined && messageResult.status !== FAILED;
@@ -416,8 +427,16 @@ async function buildLocal(appInfo, appID, ref, commit) {
     messageResult.test = testResult;
 
     sockets.results.pushStandardContent(appID, commit, "End of unit tests.");
-    sockets.results.setStatus(appID, commit, messageResult.panel);
   }
+
+  timers[1] = Date.now();
+
+  var res = Math.abs(timers[0] - timers[1]) / 1000;
+  var minutes = Math.floor(res / 60) % 60;
+  var seconds = res % 60;
+  messageResult.time_length = minutes + ':' + seconds;
+
+  sockets.results.setStatus(appID, commit, messageResult.panel, messageResult.time_length);
 
   console.log('Saving buildMessages.');
 

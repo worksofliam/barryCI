@@ -18,6 +18,7 @@ window.onload = function () {
     var consoleBox = document.getElementById('console');
     var infocard = document.getElementById('infocard');
     var timeUpdated = document.getElementById('timeUpdated');
+    var timeLength = document.getElementById('timeLength');
 
     switch (true) {
       case evt.append !== undefined:
@@ -36,6 +37,8 @@ window.onload = function () {
 
         infocard.classList.add('border-' + evt.status);
         timeUpdated.innerText = evt.time;
+
+        timeLength.innerText = evt.time_length;
         break;
     }
   };

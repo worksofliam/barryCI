@@ -55,13 +55,13 @@ var sockets = {
       });
     },
 
-    setStatus(appID, commit, status) {
+    setStatus(appID, commit, status, time_length) {
       if (appID === undefined) return;
 
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           if (client.page === appID && client.commit === commit) {
-            client.send(JSON.stringify({status: status, time: new Date().toLocaleString()}));
+            client.send(JSON.stringify({status: status, time_length: time_length, time: new Date().toLocaleString()}));
           }
         }
       });
