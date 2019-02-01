@@ -434,7 +434,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
   var res = Math.abs(timers[0] - timers[1]) / 1000;
   var minutes = Math.floor(res / 60) % 60;
   var seconds = res % 60;
-  messageResult.time_length = minutes + ':' + seconds;
+  messageResult.time_length = minutes + 'm ' + seconds + 's';
 
   sockets.results.setStatus(appID, commit, messageResult.panel, messageResult.time_length);
 
