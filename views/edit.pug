@@ -28,6 +28,9 @@ include ./head.pug
           .form-group
             label Build name
             input.form-control(type='text', name='name', value=repo.name, placeholder='Build name', required)
+            small.form-text.text-muted.mt-3
+              ul
+                li If using a local repo, name must match the local repository name (e.g. the name of the cloned directory)
         
         hr
         
