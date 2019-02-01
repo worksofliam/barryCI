@@ -5,6 +5,10 @@
   background-color: black;
 }
 
+.consoleCard {
+  padding: 0rem;
+}
+
 .table-borderless > tbody > tr > td,
 .table-borderless > tbody > tr > th,
 .table-borderless > tfoot > tr > td,

@@ -46,7 +46,7 @@ link(href='/public/list.css', rel='stylesheet')
       if info.test === undefined
         .card.mb-3
           .card-header Build result
-          .card-body
+          .card-body.consoleCard
             textarea#console.form-control(rows='20', readonly)=info.message
       else
         .card.mb-3
