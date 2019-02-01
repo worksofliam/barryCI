@@ -139,7 +139,7 @@ router.post('/app/build/:id', async (req, res) => {
           ref: 'refs/heads/master',
           after: 'HEAD',
           repository: {
-            full_name: appInfo.name,
+            full_name: appInfo.repo || appInfo.name,
             clone_url: appInfo.clone_url
           }
         }
