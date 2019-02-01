@@ -348,7 +348,7 @@ async function buildLocal(appInfo, appID, ref, commit) {
     timestamp: new Date().toLocaleString(),
     message: 'Building application.\n\r',
     panel: 'warning',
-    time_length: ''
+    time_length: 'In progress.'
   }
 
   if (appInfo.sender !== undefined) {
