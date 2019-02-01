@@ -96,7 +96,7 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
       var calculated_signature = 'sha1=' + crypto.createHmac('sha1', secret).update(request).digest('hex');
 
       if (req.headers['x-hub-signature'] !== calculated_signature) {
-        console.log('X-Hub-Signature does not match request signature: ' + appInfo.repo);
+        console.log('X-Hub-Signature does not match request signature: ' + appID);
         console.log(' >   Stored secret: "' + secret + '"');
         console.log(' > X-Hub-Signature: "' + req.headers['x-hub-signature'] + '"');
         console.log(' > Calc..Signature: "' + calculated_signature + '"');
