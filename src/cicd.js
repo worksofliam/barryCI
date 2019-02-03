@@ -452,7 +452,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
     time: new Date().toLocaleString()
   };
 
-  sockets.view.updateStatus(appID, statuses[key]);
+  sockets.view.updateStatus(key, statuses[key]);
 }
 
 async function uploadGitHubRelease(appInfo) {
@@ -547,8 +547,8 @@ async function addRepoSetup(appInfo) {
   appInfo.release = data.release;
 
   if (appInfo.release !== undefined) {
-    appInfo.release.buildOnly = data.release.buildOnly || false
-    appInfo.release.do_build = data.release.do_build || true;
+    appInfo.release.do_build = data.release.do_build || true; //Do the regular build true/false
+    appInfo.release.buildOnly = data.release.buildOnly || false; //Build only or run post commands and upload file? true/false
     appInfo.release.post_commands = data.release.post_commands || [];
     //appInfo.release.upload_file
   }
