@@ -438,7 +438,9 @@ async function updateStatus(appInfo, appID, commit, status, text) {
   if (commit !== "")
     url = config.address + ':' + config.port + '/result/' + appID + '/' + commit
 
-  statuses[appID+appInfo.eventBranch] = {
+  var key = appID+appInfo.eventBranch;
+
+  statuses[key] = {
     name: appInfo.name,
     repo: appInfo.repo + '-' + appInfo.eventBranch,
     commit: commit,
@@ -448,7 +450,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
     time: new Date().toLocaleString()
   };
 
-  sockets.view.updateStatus(appID, statuses[appID]);
+  sockets.view.updateStatus(appID, statuses[key]);
 }
 
 async function uploadGitHubRelease(appInfo) {
