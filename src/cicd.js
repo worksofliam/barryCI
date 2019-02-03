@@ -550,7 +550,7 @@ async function addRepoSetup(appInfo) {
 }
 
 function branchFromRef(ref) {
-  return ref.split('/');
+  return ref.split('/')[2];
 }
 
 module.exports = router;
