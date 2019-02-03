@@ -267,19 +267,23 @@ async function release_event(req, res) {
 
         //If we don't need to be or it was successful...
         if (result.status === SUCCESSFUL) {
-          if (appInfo.release.buildOnly === false) {
-            try {
-              await updateStatus(appInfo, appID, commit, "pending", "Release starting.");
-        
-              //Run the post_commands
-              if (appInfo.release.post_commands.length > 0) {
-                for (var i in appInfo.release.post_commands) {
-                  command = appInfo.release.post_commands[i];
-                  await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
-                }
+          try {
+            await updateStatus(appInfo, appID, commit, "pending", "Release starting.");
+      
+            //Run the post_commands
+            if (appInfo.release.post_commands.length > 0) {
+              await updateStatus(appInfo, appID, commit, "pending", "Release build starting.");
+
+              for (var i in appInfo.release.post_commands) {
+                command = appInfo.release.post_commands[i];
+                await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
               }
 
-              //Then upload the file if it exists!
+              await updateStatus(appInfo, appID, commit, "success", "Release build finished.");
+            }
+
+            //Then upload the file if it exists!
+            if (appInfo.upload_file !== undefined) {
               try {
                 await fileExists(appInfo.upload_file);
                 
@@ -292,11 +296,16 @@ async function release_event(req, res) {
               } catch (err) {
                 await updateStatus(appInfo, appID, "", "failure", "Build failed for release: no file.");
               }
-            } catch (err) {
-              sockets.results.pushStandardContent(appID, commit, err);
-              await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
+
+            } else {
+              await updateStatus(appInfo, appID, commit, "pending", "Release finished.");
             }
+
+          } catch (err) {
+            sockets.results.pushStandardContent(appID, commit, err);
+            await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
           }
+
         } else {
           await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
         }
@@ -548,7 +557,6 @@ async function addRepoSetup(appInfo) {
 
   if (appInfo.release !== undefined) {
     appInfo.release.do_build = data.release.do_build || true; //Do the regular build true/false
-    appInfo.release.buildOnly = data.release.buildOnly || false; //Build only or run post commands and upload file? true/false
     appInfo.release.post_commands = data.release.post_commands || [];
     //appInfo.release.upload_file
   }
