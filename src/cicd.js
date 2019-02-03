@@ -438,9 +438,9 @@ async function updateStatus(appInfo, appID, commit, status, text) {
   if (commit !== "")
     url = config.address + ':' + config.port + '/result/' + appID + '/' + commit
 
-  statuses[appID] = {
+  statuses[appID+appInfo.eventBranch] = {
     name: appInfo.name,
-    repo: appInfo.repo + ' (' + appInfo.eventBranch + ')',
+    repo: appInfo.repo + '-' + appInfo.eventBranch,
     commit: commit,
     status: status,
     text: text,
