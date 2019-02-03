@@ -149,7 +149,7 @@ router.post('/app/build/:id', async (req, res) => {
       push_event(input);
 
     } else {
-      res.json({message: 'HTTPS clone URL missing from ' + appInfo.name + '.'});
+      res.json({message: 'Clone URL missing from ' + appInfo.name + '.'});
     }
   } else {
     res.json({message: 'Build ID does not exist.'});
@@ -405,30 +405,6 @@ async function buildLocal(appInfo, appID, ref, commit) {
 
   sockets.results.pushStandardContent(appID, commit, "End of build.\n\r");
 
-  //Unit tests
-  var runTests = appInfo.test !== undefined && messageResult.status !== FAILED;
-  console.log('Running unit tests: ' + runTests);
-
-  if (runTests) {
-    stage = 'Testing';
-    command = appInfo.test;
-    var testResult = await execPromiseTests(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
-
-    console.log(testResult);
-
-    if (testResult.result) {
-      messageResult.panel = 'success';
-    } else {
-      messageResult.status = FAILED;
-      messageResult.message += '\n\rUnit tests failed.';
-      messageResult.panel = 'danger';
-    }
-
-    messageResult.test = testResult;
-
-    sockets.results.pushStandardContent(appID, commit, "End of unit tests.");
-  }
-
   timers[1] = Date.now();
 
   var res = Math.abs(timers[0] - timers[1]) / 1000;
@@ -551,53 +527,6 @@ function execPromise(command, args, options) {
       } else {
         resolve(output);
       }
-    });
-  });
-}
-
-function execPromiseTests(command, args, options) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, options);
-
-    var appID = options.appID;
-    var commit = options.commit;
-
-    var tests = {
-      result: true,
-      list: []
-    }
-
-    child.stdout.on('data', (data) => {
-      data = data.toString('utf8');
-      if (data.indexOf(':') >= 0) {
-        var result = data.split(':');
-        result[1] = result[1].substr(0, result[1].indexOf('\n'));
-
-        switch (result[0]) {
-          case 's': //Success
-            tests.list.push({name: result[1], success: true});
-            break;
-          case 'f': //Fail
-            tests.result = false;
-            tests.list.push({name: result[1], success: false});
-            break;
-        }
-      }
-
-      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
-    });
-
-    child.stderr.on('data', (data) => {
-      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
-    });
-
-    child.on('error', (data) => {
-      var message = (data.code + ' (' + data.errno + ') - ' + data.path + ': ' + data.message);
-      sockets.results.pushStandardContent(appID, commit, '\n\r' + message + '\n\r');
-    });
-
-    child.on('close', (code) => {
-      resolve(tests);
     });
   });
 }

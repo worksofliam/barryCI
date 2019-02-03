@@ -43,24 +43,7 @@ link(href='/public/list.css', rel='stylesheet')
 
   .row
     .col
-      if info.test === undefined
-        .card.mb-3
-          .card-header Build result
-          .card-body.consoleCard
-            textarea#console.form-control(rows='20', readonly)=info.message
-      else
-        .card.mb-3
-          .card-header Unit Test results
-          .card-body
-            table(id='unittests', class='table table-hover table-borderless')
-              tbody
-                - var colour = ''
-                for test in info.test.list
-                  if test.success === true
-                    - colour = 'fa fa-check text-green'
-                  else
-                    - colour = 'fa fa-times text-red'
-                  tr
-                    td
-                      div(class=colour)
-                    td=test.name
+      .card.mb-3
+        .card-header Build result
+        .card-body.consoleCard
+          textarea#console.form-control(rows='20', readonly)=info.message
