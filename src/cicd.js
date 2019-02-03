@@ -341,7 +341,7 @@ async function buildLocal(appInfo, appID, branch, commit) {
   var stage = '';
   var timers = [Date.now(), null];
 
-  console.log('Build for ' + appInfo.repo + ' starting.');
+  console.log('Build for ' + appInfo.repo + '-' + branch + ' starting.');
   var messageResult = {
     project: appInfo.repo,
     status: IN_PROGRESS,
@@ -386,7 +386,7 @@ async function buildLocal(appInfo, appID, branch, commit) {
     stderr = err;
   }
   
-  console.log('Build finished for ' + appInfo.repo + ': ' + (stderr ? "failed" : "successful"));
+  console.log('Build finished for ' + appInfo.repo + '-' + branch + ': ' + (stderr ? "failed" : "successful"));
 
   if (typeof stderr === 'object') {
     stderr = stderr.message + '\n\r' + stderr.stack;
