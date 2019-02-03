@@ -21,7 +21,7 @@ var sockets = require('./sockets');
 //**********************************************
 
 /**
- * appInfo {<github>, <secret>, <ref>, <build[{command, args}]>, <release{do_build, post_commands, upload_file}> <repo>, <clone_url>, <repoDir>}
+ * appInfo {<github>, <secret>, <branch>, <build[{command, args}]>, <release{do_build, post_commands, upload_file}> <repo>, <clone_url>, <repoDir>}
  */
 
 //**********************************************
@@ -166,13 +166,15 @@ async function push_event(req, res) {
   appInfo.clone_url = req.body.repository.clone_url;
   appInfo.sender = req.body.sender;
 
+  appInfo.eventBranch = branchFromRef(req.body.ref);
+
   if (res !== undefined)
     res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo);
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch);
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -196,14 +198,14 @@ async function push_event(req, res) {
     }
 
     if (configFound) {
-      if (req.body.ref === appInfo.ref) {
+      if (appInfo.eventBranch === appInfo.branch || appInfo.branch === undefined) {
         updateGitHubStatus(appInfo, appID, commit, "pending", "Building application");
 
-        var result = await buildLocal(appInfo, appID, req.body.ref, commit);
+        var result = await buildLocal(appInfo, appID, appInfo.eventBranch, commit);
 
         updateGitHubStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), result.stage + " " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
       } else {
-        console.log('Build for ' + appInfo.repo + ' not starting. Incorrect ref: ' + req.body.ref);
+        console.log('Build for ' + appInfo.repo + ' not starting. Incorrect branch: ' + appInfo.eventBranch);
       }
     } else {
       await updateStatus(appInfo, appID, "", "not-started", "Build cancelled: barryci.json missing.");
@@ -334,7 +336,7 @@ async function cloneRepo(httpsURI, repoName, branch) {
   }
 }
 
-async function buildLocal(appInfo, appID, ref, commit) {
+async function buildLocal(appInfo, appID, branch, commit) {
   
   var stage = '';
   var timers = [Date.now(), null];
@@ -343,10 +345,10 @@ async function buildLocal(appInfo, appID, ref, commit) {
   var messageResult = {
     project: appInfo.repo,
     status: IN_PROGRESS,
-    ref: ref,
+    branch: branch,
     commit: commit,
     timestamp: new Date().toLocaleString(),
-    message: 'Building application.\n\r',
+    message: 'Building application branch ' + branch + '.\n\r',
     panel: 'warning',
     time_length: 'In progress.'
   }
@@ -438,7 +440,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
 
   statuses[appID] = {
     name: appInfo.name,
-    repo: appInfo.repo,
+    repo: appInfo.repo + ' (' + appInfo.eventBranch + ')',
     commit: commit,
     status: status,
     text: text,
@@ -500,15 +502,17 @@ function execPromise(command, args, options) {
     var commit = options.commit;
 
     child.stdout.on('data', (data) => {
-      output += data.toString('utf8');
+      var content = data.toString('utf8');
+      output += content;
 
-      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
+      sockets.results.pushStandardContent(appID, commit, content);
     });
 
     child.stderr.on('data', (data) => {
-      output += data.toString('utf8');
+      var content = data.toString('utf8');
+      output += content;
 
-      sockets.results.pushStandardContent(appID, commit, data.toString('utf8'));
+      sockets.results.pushStandardContent(appID, commit, content);
     });
 
     child.on('error', (data) => {
@@ -534,9 +538,8 @@ function execPromise(command, args, options) {
 async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
-  appInfo.ref = data.ref || "refs/heads/master";
+  appInfo.branch = data.branch;
   appInfo.build = data.build || [];
-  appInfo.test = data.test;
   appInfo.release = data.release;
 
   if (appInfo.release !== undefined) {
@@ -544,6 +547,10 @@ async function addRepoSetup(appInfo) {
     appInfo.release.post_commands = data.release.post_commands || [];
     //appInfo.release.upload_file
   }
+}
+
+function branchFromRef(ref) {
+  return ref.split('/');
 }
 
 module.exports = router;
