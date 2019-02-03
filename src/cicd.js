@@ -198,7 +198,7 @@ async function push_event(req, res) {
     }
 
     if (configFound) {
-      if (appInfo.eventBranch === appInfo.branch || appInfo.branch === undefined) {
+      if (appInfo.eventBranch === appInfo.focusBranch || appInfo.focusBranch === undefined) {
         updateGitHubStatus(appInfo, appID, commit, "pending", "Building application");
 
         var result = await buildLocal(appInfo, appID, appInfo.eventBranch, commit);
@@ -540,7 +540,7 @@ function execPromise(command, args, options) {
 async function addRepoSetup(appInfo) {
   var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
 
-  appInfo.branch = data.branch;
+  appInfo.focusBranch = data.focusBranch;
   appInfo.build = data.build || [];
   appInfo.release = data.release;
 
