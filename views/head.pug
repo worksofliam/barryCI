@@ -1,6 +1,8 @@
 doctype html
 html(lang='en')
   head
+    link(rel="stylesheet" href="/public/global.css")
+
     link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css")
     link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
     
@@ -17,17 +19,14 @@ html(lang='en')
     else
       title barryCI
   body
-    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.mb-4
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-5
       .navbar-brand
         img(src='/public/barryci-icon.svg' height='50em')
       button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
         span.navbar-toggler-icon
       #navbarSupportedContent.collapse.navbar-collapse
         ul.navbar-nav.mr-auto
-          if username === undefined
-            li.nav-item
-              a.nav-link(href='/login') Login
-          else
+          if username !== undefined
             li.nav-item
               a.nav-link(href='/app/list') Dashboard
             li.nav-item
@@ -35,7 +34,12 @@ html(lang='en')
             li.nav-item
               a.nav-link(target='_blank', href='https://github.com/WorksOfBarry/barryCI/wiki') Help
             li.nav-item
-              a.nav-link(href='/app/logout')='Log out ' + username
-    
-    a(href="https://github.com/WorksOfBarry/barryCI")
-      img(style="position: absolute; top:0; right: 0; border: 0;", src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png", alt="Fork me on GitHub")
+              a.nav-link(href='/app/logout')
+
+        if username === undefined
+          form.form-inline.my-2.my-lg-0(action='/login')
+            button.btn.btn-secondary.my-2.my-sm-0(type='submit') Login
+        else
+          form.form-inline.my-2.my-lg-0(action='/app/logout')
+            span.nav-item=username
+            button.btn.btn-secondary.my-2.my-sm-0.ml-3(type='submit') Log out
