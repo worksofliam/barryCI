@@ -25,7 +25,6 @@ link(href='/public/manage.css', rel='stylesheet')
             tr
               th Name
               th
-              th
           tbody
             each repo, key in repos
               tr
@@ -35,10 +34,9 @@ link(href='/public/manage.css', rel='stylesheet')
                     button.btn.btn-outline-success(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') 
                       i(class='fa fa-rocket').mr-2
                       | Trigger Build
-                td(align='right')
                   a(href='/app/edit/' + key)
-                    button.btn.btn-outline-secondary(type='button', class='btn-sm') 
+                    button.btn.btn-outline-secondary(type='button', class='btn-sm').ml-5
                       i(class='fa fa-pencil').mr-2
                       | Edit
-          
+
     .col-md-1
