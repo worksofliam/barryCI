@@ -85,7 +85,7 @@ window.onload = function () {
         break;
       
       case 'not-started':
-        tableInsertClass = 'fa fa-times text-red';
+        tableInsertClass = 'fa fa-times text-black';
         row.text.classList.value = 'card-title text-black';
         row.icon.classList.value = 'fa fa-times text-black';
         break;
