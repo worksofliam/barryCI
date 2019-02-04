@@ -61,13 +61,13 @@ window.onload = function () {
     switch (status.status) {
       case 'cloning':
       case 'middle':
-        tableInsertClass = 'fa fa-wrench';
+        tableInsertClass = 'fa fa-wrench text-blue';
         row.text.classList.value = 'card-title text-blue';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin text-blue';
         break;
 
       case 'pending':
-        tableInsertClass = 'fa fa-wrench';
+        tableInsertClass = 'fa fa-wrench text-blue';
         row.text.classList.value = 'card-title text-blue';
         row.icon.classList.value = 'fa fa-circle-o-notch fa-spin text-blue';
         break;
