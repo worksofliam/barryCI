@@ -45,7 +45,8 @@ window.onload = function () {
           + '</div>'
         + '</div>' 
       + '</div>'
-    + '</div>' + statuses.innerHTML;
+    + '</div>' 
+    + statuses.innerHTML;
 
     card = document.getElementById(appID + 'card');
     
@@ -94,11 +95,9 @@ window.onload = function () {
     row.text.innerText = status.text;
     row.time.innerText = status.time;
 
-    // if (status.url !== "") {
-    //   row.viewBtn.innerHTML = '<a href="' + status.url + '" target="_target"><button class="btn btn-active btn-sm" type="button">View</button></a>';
-    // } else {
-    //   row.viewBtn.innerHTML = '';
-    // }
+    if (status.url !== "") {
+      card.innerHTML = '<a href="' + status.url + '" target="_target">' + card.innerHTML + '</a>';
+    }
 
     //Now we also need to insert into the updates table!
 

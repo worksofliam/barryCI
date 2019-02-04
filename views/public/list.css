@@ -9,3 +9,14 @@
 .text-green {
   color: green;
 }
+.text-blue {
+  color: #4286f4;
+}
+
+.card a {
+  text-decoration: none !important;
+}
+
+.card a p {
+  color: black !important;;
+}
