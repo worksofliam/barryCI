@@ -8,14 +8,14 @@ link(href='/public/list.css', rel='stylesheet')
 .container
 
   .row
-    .col
+    .col-1
+    .col-10
       h3.display-4.mb-4=info.project + ' build result'
-      .card.mb-3#infocard(class='border-' + info.panel)
-        .card-header Information
+      .card.mb-3#infocard(class='result-' + info.panel)
         .card-body
           .row
             .col-8
-              table(class='table table-sm table-borderless ')
+              table(class='table table-sm table-borderless').mt-2
                 tbody
                   tr
                     td
@@ -27,7 +27,8 @@ link(href='/public/list.css', rel='stylesheet')
                   tr
                     td
                       i.fa.fa-file-code-o
-                      span.ml-2=info.commit
+                      span.ml-2
+                        code=info.commit
                     td
                       if info.pusher !== undefined
                         i.fa.fa-user-circle-o
@@ -40,10 +41,13 @@ link(href='/public/list.css', rel='stylesheet')
                     td
                       i.fa.fa-clock-o
                       span.ml-2#timeLength=info.time_length
+    .col-1
 
   .row
-    .col
+    .col-1
+    .col-10
       .card.mb-3
         .card-header Build result
         .card-body.consoleCard
           textarea#console.form-control(rows='20', readonly)=info.message
+    .col-1

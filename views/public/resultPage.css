@@ -17,3 +17,20 @@
 .table-borderless > thead > tr > th {
     border: none;
 }
+
+#infocard {
+  border-bottom-left-radius: 1px;
+  border-top-left-radius: 1px;
+}
+
+.result-success {
+  border-left: 15px solid green;
+}
+
+.result-warning {
+  border-left: 15px solid orange;
+}
+
+.result-danger {
+  border-left: 15px solid #ec2a00;
+}
