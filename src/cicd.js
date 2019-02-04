@@ -187,7 +187,7 @@ async function push_event(req, res) {
   if (appInfo.repoDir !== undefined) {
     var configFound = false;
     try {
-      await addRepoSetup(appInfo);
+      await addRepoSetup(appInfo, {branch: appInfo.eventBranch});
       configFound = true;
     } catch (error) {
       console.log('----------------');
@@ -245,7 +245,7 @@ async function release_event(req, res) {
 
   if (appInfo.repoDir !== undefined) {
     try {
-      await addRepoSetup(appInfo);
+      await addRepoSetup(appInfo, {branch: appInfo.release_branch});
     } catch (error) {
       console.log('----------------');
       console.log('No barryci.json file found in ' + appInfo.repo);
@@ -548,8 +548,17 @@ function execPromise(command, args, options) {
   });
 }
 
-async function addRepoSetup(appInfo) {
-  var data = JSON.parse(await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8'));
+async function addRepoSetup(appInfo, info) {
+  var contents = await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8');
+
+  if (info !== undefined) {
+    if (info.branch !== undefined) {
+      contents = contents.replace(new RegExp('&branch-short', 'g'), (info.branch.length > 3 ? info.branch.substr(0, 3) : info.branch));
+      contents = contents.replace(new RegExp('&branch', 'g'), info.branch);
+    }
+  }
+
+  var data = JSON.parse(contents);
 
   appInfo.focusBranch = data.focusBranch;
   appInfo.build = data.build || [];
