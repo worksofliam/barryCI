@@ -1,5 +1,6 @@
 include ./head.pug
 script(defer, src="/public/manage.js")
+link(href='/public/manage.css', rel='stylesheet')
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -8,27 +9,36 @@ script(defer, src="/public/manage.js")
   .row
     .col-md-1
     .col-md-10
-      h3.mb-3 Build configurations
-
-      table(class='table table-hover')
-        thead
-          tr
-            th Name
-            th
-            th
-        tbody
-          each repo, key in repos
+      .row
+        .col
+          h3.mb-3 Build configurations
+        .col-2
+          .float-right
+            a(href='/app/create')
+              button.btn.btn-primary(type='button', class='btn') 
+                i(class='fa fa-plus').mr-2
+                | Create
+      
+      .row
+        table(class='table')
+          thead
             tr
-              td=repo.name
-              td(align='right')
-                if repo.clone_url !== undefined
-                  button.btn.btn-warning(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') Trigger Build
-              td(align='right')
-                a(href='/app/edit/' + key)
-                  button.btn.btn-primary(type='button', class='btn-sm') Edit
-
-      p
-        a(href='/app/create')
-          button.btn.btn-primary(type='button', class='btn-sm') Create
+              th Name
+              th
+              th
+          tbody
+            each repo, key in repos
+              tr
+                td=repo.name
+                td(align='right')
+                  if repo.clone_url !== undefined
+                    button.btn.btn-outline-success(onclick='dobuild(this.name)', name=key, type='button', class='btn-sm') 
+                      i(class='fa fa-rocket').mr-2
+                      | Trigger Build
+                td(align='right')
+                  a(href='/app/edit/' + key)
+                    button.btn.btn-outline-secondary(type='button', class='btn-sm') 
+                      i(class='fa fa-pencil').mr-2
+                      | Edit
           
     .col-md-1

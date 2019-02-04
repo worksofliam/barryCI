@@ -1,0 +1,9 @@
+
+table a {
+  text-decoration: none !important;
+  color: black;
+}
+
+table a:hover {
+  color: grey;
+}
