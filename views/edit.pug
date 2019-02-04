@@ -1,4 +1,5 @@
 include ./head.pug
+link(href='/public/edit.css', rel='stylesheet')
 
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
@@ -7,10 +8,11 @@ include ./head.pug
   .row
     .col-md-1
     .col-md-10
-      if id === undefined
-        h2 Creating build.
-      else
-        h2='Editing ' + repo.name + '.'
+      h2.custom-display-5
+        if id === undefined
+          | Creating build.
+        else
+          ='Editing ' + repo.name + '.'
       
       .mb-4
 

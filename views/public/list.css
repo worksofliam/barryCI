@@ -20,3 +20,7 @@
 .card a p {
   color: black !important;;
 }
+
+.custom-display-5 {
+  font-weight: 300;
+}
