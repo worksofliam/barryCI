@@ -26,15 +26,34 @@ window.onload = function () {
     if (card !== null) card.parentNode.removeChild(card);
 
     //Add the new status to the top
-    statuses.innerHTML = '<div class="card mb-3" id="' + appID + 'card"><div class="card-body text-white"><div class="container"><div class="row"><div class="col-3"><div class="mx-auto text-center p-3"><i class="" id="' + appID + 'icon" style="font-size:6em"></i></div></div><div class="col"><h4 class="card-title" id="' + appID + 'title"></h4><h6 class="mb-2" id="' + appID + 'time"></h6><p class="card-text" id="' + appID + 'text"></p><div id="' + appID + 'viewBtn"></div></div></div></div></div></div>' + statuses.innerHTML;
+    statuses.innerHTML = 
+    '<div class="card mb-3" id="' + appID + 'card">'
+      + '<div class="card-body">'
+        + '<div class="container">'
+          + '<div class="row">'
+            + '<div class="col">'
+               + ''
+               + '<h4 class="card-title" id="' + appID + 'text"></h4>'
+               + '<p class="card-text mb-1" id="' + appID + 'title"></p>'
+               + '<p class="card-text mb-0" id="' + appID + 'time"></p>'
+            + '</div>'
+            + '<div class="col-3">'
+              + '<div class="mx-auto text-center p-3">'
+                + '<i class="" id="' + appID + 'icon" style="font-size:3.5em"></i>'
+              + '</div>'
+            + '</div>'
+          + '</div>'
+        + '</div>' 
+      + '</div>'
+    + '</div>' + statuses.innerHTML;
+
     card = document.getElementById(appID + 'card');
     
     var row = {
       icon: document.getElementById(appID + 'icon'),
       title: document.getElementById(appID + 'title'),
       text: document.getElementById(appID + 'text'),
-      time: document.getElementById(appID + 'time'),
-      viewBtn: document.getElementById(appID + 'viewBtn'),
+      time: document.getElementById(appID + 'time')
     };
 
     var tableInsertClass = '';
@@ -42,32 +61,32 @@ window.onload = function () {
       case 'cloning':
       case 'middle':
         tableInsertClass = 'fa fa-wrench';
-        card.classList.value = 'card bg-dark mb-3';
-        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
+        row.text.classList.value = 'card-title text-blue';
+        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin text-blue';
         break;
 
       case 'pending':
         tableInsertClass = 'fa fa-wrench';
-        card.classList.value = 'card bg-warning mb-3';
-        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin';
+        row.text.classList.value = 'card-title text-blue';
+        row.icon.classList.value = 'fa fa-circle-o-notch fa-spin text-blue';
         break;
 
       case 'success':
         tableInsertClass = 'fa fa-check text-green';
-        card.classList.value = 'card bg-success mb-3';
-        row.icon.classList.value = 'fa fa-check';
+        row.text.classList.value = 'card-title text-green';
+        row.icon.classList.value = 'fa fa-check text-green';
         break;
         
       case 'failure':
         tableInsertClass = 'fa fa-times text-red';
-        card.classList.value = 'card bg-danger mb-3';
-        row.icon.classList.value = 'fa fa-times';
+        row.text.classList.value = 'card-title text-red';
+        row.icon.classList.value = 'fa fa-times text-red';
         break;
       
       case 'not-started':
         tableInsertClass = 'fa fa-times text-red';
-        card.classList.value = 'card bg-dark mb-3';
-        row.icon.classList.value = 'fa fa-times';
+        row.text.classList.value = 'card-title text-black';
+        row.icon.classList.value = 'fa fa-times text-black';
         break;
     }
 
@@ -75,11 +94,11 @@ window.onload = function () {
     row.text.innerText = status.text;
     row.time.innerText = status.time;
 
-    if (status.url !== "") {
-      row.viewBtn.innerHTML = '<a href="' + status.url + '" target="_target"><button class="btn btn-active btn-sm" type="button">View</button></a>';
-    } else {
-      row.viewBtn.innerHTML = '';
-    }
+    // if (status.url !== "") {
+    //   row.viewBtn.innerHTML = '<a href="' + status.url + '" target="_target"><button class="btn btn-active btn-sm" type="button">View</button></a>';
+    // } else {
+    //   row.viewBtn.innerHTML = '';
+    // }
 
     //Now we also need to insert into the updates table!
 
