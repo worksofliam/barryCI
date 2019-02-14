@@ -228,6 +228,7 @@ async function release_event(req, res) {
   
   appInfo.release_id = req.body.release.id;
   appInfo.release_branch = req.body.release.target_commitish;
+  appInfo.eventBranch = appInfo.release_branch;
 
   res.json({message: 'Release for ' + appInfo.repo + ' starting.'});
 
@@ -262,7 +263,7 @@ async function release_event(req, res) {
         var result = {status: SUCCESSFUL}
         if (appInfo.release.do_build) {
           await updateStatus(appInfo, appID, commit, "pending", "Building application");
-          result = await buildLocal(appInfo, appID, req.body.ref, commit);
+          result = await buildLocal(appInfo, appID, appInfo.release_branch, commit);
           await updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
         }
 
@@ -288,14 +289,14 @@ async function release_event(req, res) {
               try {
                 await fileExists(appInfo.upload_file);
                 
-                await updateStatus(appInfo, appID, "", "pending", "Release upload started.");
+                await updateStatus(appInfo, appID, commit, "pending", "Release upload started.");
                 if (await uploadGitHubRelease(appInfo)) {
-                  await updateStatus(appInfo, appID, "", "success", "Release created.");
+                  await updateStatus(appInfo, appID, commit, "success", "Release created.");
                 } else {
-                  await updateStatus(appInfo, appID, "", "failure", "Release upload failed.");
+                  await updateStatus(appInfo, appID, commit, "failure", "Release upload failed.");
                 }
               } catch (err) {
-                await updateStatus(appInfo, appID, "", "failure", "Build failed for release: no file.");
+                await updateStatus(appInfo, appID, commit, "failure", "Build failed for release: no file.");
               }
 
             } else {
