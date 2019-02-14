@@ -169,6 +169,11 @@ async function push_event(req, res) {
 
   appInfo.eventBranch = branchFromRef(req.body.ref);
 
+  if (isTagPush(req.body.ref)) { //Don't build here if is tag, seperate release tag
+    res.json({message: 'Build for ' + appInfo.repo + ' is not starting (ref).'});
+    return;
+  }
+
   if (res !== undefined)
     res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
 
@@ -575,6 +580,10 @@ async function addRepoSetup(appInfo, info) {
 
 function branchFromRef(ref) {
   return ref.split('/')[2];
+}
+
+function isTagPush(ref) {
+  return ref.split('/')[1] === 'tags';
 }
 
 module.exports = router;
