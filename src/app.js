@@ -66,7 +66,7 @@ router.get(['/edit/:id', '/edit', '/create'], async (req, res) => {
   if (id !== undefined) {
     params.id = id;
     params.githuburl = config.address + ':' + config.port + '/work/' + id;
-    params.buildurl = config.address + ':' + config.port + '/app/build/' + id;
+    params.buildurl = config.address + ':' + config.port + '/app/build/' + id + '/master';
   } else {
     params.use_id = makeid();
   }

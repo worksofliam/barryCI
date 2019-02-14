@@ -124,8 +124,9 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
   }
 });
 
-router.post('/app/build/:id', async (req, res) => {
+router.post('/build/:id/:branch', async (req, res) => {
   var appID = req.params.id;
+  var branch = req.params.branch;
 
   if (config.repos[appID] !== undefined) {
     var appInfo = config.repos[appID];
@@ -136,7 +137,7 @@ router.post('/app/build/:id', async (req, res) => {
           id: appID
         },
         body: {
-          ref: 'refs/heads/master',
+          ref: 'refs/heads/' + branch,
           after: 'HEAD',
           repository: {
             full_name: appInfo.repo || appInfo.name,
@@ -145,7 +146,7 @@ router.post('/app/build/:id', async (req, res) => {
         }
       }
 
-      res.json({message: 'Build starting for ' + appInfo.name + '.'});
+      res.json({message: 'Build starting for ' + appInfo.name + '-' + branch + '.'});
       push_event(input);
 
     } else {
