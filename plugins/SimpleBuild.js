@@ -6,7 +6,7 @@ var config = Config.dataSet;
 
 var cicd = require('../src/cicd');
 
-module.exports = class IntroPlugin {
+module.exports = class SimpleBuildPlugin {
   constructor() {
     this.name = 'SimpleBuild';
     console.log(this.name + ' loaded.');
