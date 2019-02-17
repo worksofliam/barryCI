@@ -10,5 +10,9 @@ module.exports = {
 
   get: function() {
     return this.buildMessagesConfig.dataSet;
+  },
+
+  save: async function() {
+    await this.buildMessagesConfig.saveConfigAsync()
   }
 }

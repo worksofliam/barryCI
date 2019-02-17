@@ -187,7 +187,7 @@ module.exports = {
 
     buildMessages[key] = messageResult;
     try {
-      await buildMessagesConfig.saveConfigAsync();
+      await bmClass.save();
     } catch (e) {
       console.log('Couldn\'t save buildMessages.');
       console.log(e);
