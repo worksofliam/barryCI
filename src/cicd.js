@@ -15,6 +15,10 @@ var sockets = require('./sockets');
 
 //**********************************************
 
+var plugins = require('./classes/plugin');
+
+//**********************************************
+
 var Config = require('./appConfig');
 var config = Config.dataSet;
 
@@ -39,6 +43,10 @@ module.exports = {
   build_event: async function (appInfo) {
     await this.updateStatus(appInfo, "middle", "Cloning repository.");
 
+    await plugins.emit('preClone', {
+      appInfo: appInfo
+    });
+
     try {
       appInfo.setRepoDir(await this.cloneRepo(appInfo));
     } catch (error) {
@@ -59,6 +67,10 @@ module.exports = {
         console.log('----------------');
         configFound = false;
       }
+
+      await plugins.emit('postClone', {
+        appInfo: appInfo
+      });
 
       if (appInfo.config !== undefined) {
         if (appInfo.branch === appInfo.config.focusBranch || appInfo.config.focusBranch === undefined) {
@@ -114,6 +126,10 @@ module.exports = {
     var stage = '';
     var timers = [Date.now(), null];
 
+    await plugins.emit('preBuild', {
+      appInfo: appInfo
+    });
+
     console.log('Build for ' + appInfo.repo_name + '-' + appInfo.branch + ' starting.');
     var messageResult = {
       project: appInfo.repo_name,
@@ -152,6 +168,11 @@ module.exports = {
     } catch (err) {
       stderr = err;
     }
+
+    await plugins.emit('postBuild', {
+      appInfo: appInfo,
+      stderr: stderr
+    });
 
     console.log('Build finished for ' + appInfo.repo_name + '-' + appInfo.branch + ': ' + (stderr ? "failed" : "successful"));
 
@@ -214,6 +235,10 @@ module.exports = {
     };
 
     sockets.view.updateStatus(key, statuses[key]);
+    await plugins.emit('statusUpdate', {
+      appInfo: appInfo,
+      status: statuses[key]
+    });
   },
 
   execPromise: function (command, args, appInfo) {
@@ -258,7 +283,7 @@ module.exports = {
     });
   },
 
-  addRepoSetup: async function(appInfo) {
+  addRepoSetup: async function (appInfo) {
     var contents = await readFileAsync(path.join(appInfo.repoDir, 'barryci.json'), 'utf8');
 
     contents = contents.replace(new RegExp('&branch-short', 'g'), (appInfo.branch > 3 ? appInfo.branch.substr(0, 3) : appInfo.branch));

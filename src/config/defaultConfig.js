@@ -10,5 +10,7 @@ module.exports = {
         "1": {
             "name": "My Repo/Build Name"
         }
+    },
+    "plugins": {
     }
 }

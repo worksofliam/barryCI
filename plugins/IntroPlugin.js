@@ -1,6 +1,16 @@
+
+var Config = require('../src/appConfig');
+var config = Config.dataSet.plugins;
+
 module.exports = class IntroPlugin {
   constructor() {
-    console.log('Hello from IntroPlugin');
+    this.name = 'IntroPlugin';
+    console.log('Hello from ' + this.name);
+
+    if (config[this.name] === undefined) {
+      //config[this.name] = {test: 1234};
+      //Config.save();
+    }
   }
 
   async load(object) {
