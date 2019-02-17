@@ -24,8 +24,6 @@ router.get('/manage', async (req, res) => {
 router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
   var id = req.body.id;
 
-  if (req.body.auth === "") req.body.auth = undefined;
-  if (req.body.secret === "") req.body.secret = undefined;
   if (req.body.clone_url === "") req.body.clone_url = undefined;
 
   if (req.body.clone_url !== undefined) {
@@ -36,10 +34,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
 
   var repo = {
     name: req.body.name,
-    github: req.body.auth,
-    secret: req.body.secret,
-    clone_url: req.body.clone_url,
-    repo: req.body.repo
+    clone_url: req.body.clone_url
   }
 
   if (id === "" || repo.name === "") {

@@ -27,7 +27,7 @@ include ./head.pug
 
         .form-row
           .form-group
-            label Build name
+            label Repository name
             input.form-control(type='text', name='name', value=repo.name, placeholder='Build name', required)
             small.form-text.text-muted.mt-3
               ul
@@ -48,20 +48,6 @@ include ./head.pug
 
         .form-row
           .form-group
-            label GitHub Auth Key
-            input.form-control(type='password', name='auth', value=repo.github, placeholder='')
-            small.form-text.text-mutedThis To be used if you want build status results posted back to GitHub (in real time).
-
-        .form-row
-          .form-group
-            label Secret
-            input.form-control(type='password', name='secret', value=repo.secret, placeholder='')
-            small.form-text.text-mutedThis Recommended so no one else can trigger unwanted builds.
-
-        hr
-
-        .form-row
-          .form-group
             .btn-group(role='group')
               a(href='/app/manage', type='button', class='btn btn-default') Cancel
               input(type='submit', class='btn btn-primary', value='Save')
@@ -76,10 +62,6 @@ include ./head.pug
               th Usage
               th Link
           tbody
-            tr
-              td URL used for the (push and release only) webhook.
-              td
-                code=githuburl
             tr
               td Call this URL to invoke a build of the application.
               td
