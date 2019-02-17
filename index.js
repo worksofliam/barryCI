@@ -7,7 +7,9 @@ const bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
+var plugins = require('./src/classes/plugin');
 var sockets = require('./src/sockets');
+var buildMessages = require('./src/buildMessages');
 
 ConfigClass.init('./config.json');
 
@@ -28,10 +30,18 @@ function checkAuth (req, res, next) {
 	next();
 }
 app.use(checkAuth);
+buildMessages.load();
 
 app.use('/public', express.static('./views/public'));
+app.use('/', require('./src/base'));
 app.use('/app', require('./src/app'));
-app.use('/', require('./src/cicd'));
 
 app.listen(ConfigClass.dataSet.port, () => console.log(`barryCI listening on port ${ConfigClass.dataSet.port}!`));
 sockets.startServer(ConfigClass.dataSet.port+1);
+
+loadPlugins();
+
+async function loadPlugins() {
+	await plugins.initPlugins();
+	await plugins.emit('load', {express: app});
+}

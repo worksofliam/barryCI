@@ -6,12 +6,6 @@ var config = Config.dataSet;
 
 //**********************************************
 
-//**********************************************
-
-var statuses = require('./statuses');
-
-//**********************************************
-
 router.get('/logout', function (req, res) {
   delete req.session.authenticated;
   delete req.session.username;
