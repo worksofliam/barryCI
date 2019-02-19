@@ -244,10 +244,12 @@ module.exports = {
   execPromise: function (command, args, buildInfo) {
     return new Promise((resolve, reject) => {
       var output = "";
-      const child = spawn(command, args, {});
 
       var appID = buildInfo.appID;
       var commit = buildInfo.commit;
+      var workingDir = buildInfo.repoDir;
+
+      const child = spawn(command, args, {cwd: workingDir});
 
       child.stdout.on('data', (data) => {
         var content = data.toString('utf8');
