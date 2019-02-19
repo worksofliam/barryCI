@@ -142,7 +142,7 @@ module.exports = {
       time_length: 'In progress.'
     }
 
-    var key = buildInfo.repo_name + buildInfo.commit;
+    var key = buildInfo.appID + buildInfo.commit;
     buildMessages[key] = messageResult;
     sockets.results.setStatus(buildInfo.appID, buildInfo.commit, messageResult.panel, 'In progress.');
 
