@@ -100,7 +100,7 @@ module.exports = {
     if (buildInfo.branch !== undefined)
       clone_string += '--single-branch -b ' + buildInfo.branch + ' ';
 
-    clone_string += buildInfo.clone_url;
+    clone_string += buildInfo.clone_url + ' repo';
 
     try {
       var {
@@ -109,7 +109,7 @@ module.exports = {
       } = await exec(clone_string, {
         cwd: repoDir
       });
-      repoDir = path.join(repoDir, repoName);
+      repoDir = path.join(repoDir, 'repo');
 
       console.log('Cloned ' + repoName + ': ' + repoDir);
       return Promise.resolve(repoDir);
