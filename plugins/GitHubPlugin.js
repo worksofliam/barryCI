@@ -1,5 +1,6 @@
 
 var Config = require('../src/appConfig');
+var config = Config.dataSet;
 var data = Config.dataSet.plugins;
 
 var BuildInfo = require('../src/classes/BuildInfo');
