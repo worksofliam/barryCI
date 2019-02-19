@@ -115,7 +115,7 @@ module.exports = class SimpleBuildPlugin {
       var githubClient = github.client(data[this.name].auth_code);
       var ghrepo = githubClient.repo(buildInfo.repo_name);
       try {
-        await ghrepo.statusAsync(commit, {
+        await ghrepo.statusAsync(buildInfo.commit, {
           "state": status,
           "target_url": url,
           "description": text
