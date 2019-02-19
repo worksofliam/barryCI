@@ -109,7 +109,7 @@ module.exports = class SimpleBuildPlugin {
 
     if (buildInfo.commit === "HEAD") return;
 
-    var url = config.address + ':' + config.port + '/result/' + appID + '/' + commit;
+    var url = config.address + ':' + config.port + '/result/' + buildInfo.appID + '/' + buildInfo.commit;
   
     if (data[this.name].auth_code !== '') {
       var githubClient = github.client(data[this.name].auth_code);

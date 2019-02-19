@@ -221,7 +221,7 @@ module.exports = {
   },
 
   updateStatus: async function (buildInfo, status, text) {
-    var url = config.address + ':' + config.port + '/result/' + buildInfo.repo_name + '/' + buildInfo.commit
+    var url = config.address + ':' + config.port + '/result/' + buildInfo.appID + '/' + buildInfo.commit
     var key = buildInfo.appID + buildInfo.branch;
 
     statuses[key] = {
