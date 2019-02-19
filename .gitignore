@@ -3,5 +3,6 @@ config.json
 buildMessages.json
 .DS_Store
 
-/plugins
+/plugins/*
 !plugins/SimpleBuild.js
+!plugins/GitHubPlugin.js

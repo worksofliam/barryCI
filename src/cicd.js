@@ -81,7 +81,7 @@ module.exports = {
           console.log('Build for ' + buildInfo.repo + ' not starting. Incorrect branch: ' + buildInfo.eventBranch);
         }
       } else {
-        await updateStatus(buildInfo, "not-started", "Build cancelled: barryci.json missing.");
+        await this.updateStatus(buildInfo, "not-started", "Build cancelled: barryci.json missing.");
       }
     }
 
