@@ -2,3 +2,6 @@ node_modules
 config.json
 buildMessages.json
 .DS_Store
+
+/plugins
+!plugins/SimpleBuild.js

@@ -4,6 +4,8 @@ var express = require('express'), router = express.Router();
 var Config = require('./appConfig');
 var config = Config.dataSet;
 
+var plugins = require('./classes/plugin');
+
 //**********************************************
 
 router.get('/logout', function (req, res) {
@@ -19,6 +21,33 @@ router.get('/list', async (req, res) => {
 
 router.get('/manage', async (req, res) => {
   res.render('manage', { username: req.session.username, repos: config.repos });
+});
+
+router.get('/plugins', async (req, res) => {
+  var names = Object.keys(plugins.pluginClasses);
+  res.render('plugins', { username: req.session.username, plugins: names });
+});
+
+router.get('/plugins/:name', async (req, res) => {
+  var plugin = req.params.name;
+  if (config.plugins[plugin] !== undefined) {
+    res.render('plugin_config', { username: req.session.username, name: plugin, config: config.plugins[plugin] });
+  } else {
+    res.redirect('/app/plugins');
+  }
+});
+
+router.post('/plugins/:name', async (req, res) => {
+  var plugin = req.params.name;
+  if (config.plugins[plugin] !== undefined) {
+    for (var key in config.plugins[plugin]) {
+      config.plugins[plugin][key] = req.body[key];
+    }
+    await Config.save();
+    res.redirect('/app/plugins');
+  } else {
+    res.redirect('/app/plugins');
+  }
 });
 
 router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {

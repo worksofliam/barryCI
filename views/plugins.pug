@@ -1,0 +1,32 @@
+include ./head.pug
+script(defer, src="/public/manage.js")
+link(href='/public/manage.css', rel='stylesheet')
+
+// https://getbootstrap.com/docs/3.3/css/#grid-example-basic
+
+.container
+
+  .row
+    .col-md-1
+    .col-md-10
+      .row
+        .col
+          h3.nice-header.mb-3 Manage plugins
+      
+      .row
+        table(class='table')
+          thead
+            tr
+              th Name
+              th
+          tbody
+            each plugin in plugins
+              tr
+                td=plugin
+                td(align='right')
+                  a(href='/app/plugins/' + plugin)
+                    button.btn.btn-outline-secondary(type='button', class='btn-sm').ml-5
+                      i(class='fa fa-pencil').mr-2
+                      | Manage
+
+    .col-md-1

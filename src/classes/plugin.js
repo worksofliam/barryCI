@@ -4,9 +4,8 @@ const path = require('path');
 
 var readDir = util.promisify(fs.readdir);
 
-var pluginClasses = [];
-
 module.exports = {
+  pluginClasses: [],
 
   initPlugins: async function() {
     fs.existsSync("plugins") || fs.mkdirSync("plugins");
@@ -16,15 +15,16 @@ module.exports = {
     
     for (var i = 0; i < files.length; i++) {
       currentClass = require(path.join("..", "..", "plugins", files[i]));
-      pluginClasses.push(new currentClass());
+      currentClass = new currentClass();
+      this.pluginClasses[currentClass.name] = currentClass;
     }
   },
 
   emit: async function(event, object) {
-    for (var i = 0; i < pluginClasses.length; i++) {
+    for (var name in this.pluginClasses) {
       //In this case, 'event' is a function
-      if (pluginClasses[i][event] !== undefined)
-        await pluginClasses[i][event](object);
+      if (this.pluginClasses[name][event] !== undefined)
+        await this.pluginClasses[name][event](object);
     }
   }
 

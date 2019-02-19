@@ -1,0 +1,28 @@
+include ./head.pug
+script(defer, src="/public/manage.js")
+link(href='/public/manage.css', rel='stylesheet')
+
+// https://getbootstrap.com/docs/3.3/css/#grid-example-basic
+
+.container
+
+  form(method='post')
+    .row
+      .col-md-2
+      .col-md-8
+        .row.mb-3
+          .col
+            h3.nice-header.mb-3='Manage ' + name
+          .col-2
+            .float-right
+              button.btn.btn-primary(type='submit')
+                i(class='fa fa-save').mr-2
+                | Save
+        
+        each value, key in config
+          .row.form-group
+            label.col-sm-4.col-form-label(for='input' + key)=key
+            .col-sm-8
+              input.form-control(id='input' + key, name=key, value=value)
+
+      .col-md-2
