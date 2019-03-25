@@ -2,7 +2,7 @@
 window.onload = function () { 
   console.log('Page loaded, contacting socket server.');
 
-  var ws = new WebSocket("ws://" + window.location.hostname + ':6124');
+  var ws = new WebSocket("ws://" + window.location.hostname + ':9124');
 
   ws.onopen = function() {
     var path = window.location.pathname.split('/');
