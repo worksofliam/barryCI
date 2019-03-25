@@ -164,7 +164,7 @@ async function push_event(req, res) {
   var appInfo = Object.assign({}, config.repos[appID]);
 
   appInfo.repo = req.body.repository.full_name;
-  appInfo.clone_url = req.body.repository.clone_url;
+  appInfo.clone_url = req.body.repository.ssh_url;
   appInfo.sender = req.body.sender;
 
   appInfo.eventBranch = branchFromRef(req.body.ref);
@@ -228,7 +228,7 @@ async function release_event(req, res) {
 
   appInfo.tag_name = commit;
   appInfo.repo = req.body.repository.full_name;
-  appInfo.clone_url = req.body.repository.clone_url;
+  appInfo.clone_url = req.body.repository.ssh_url;
   appInfo.sender = req.body.sender;
   
   appInfo.release_id = req.body.release.id;
