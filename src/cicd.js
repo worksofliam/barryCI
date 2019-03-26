@@ -141,7 +141,7 @@ router.post('/build/:id/:branch', async (req, res) => {
           after: 'HEAD',
           repository: {
             full_name: appInfo.repo || appInfo.name,
-            clone_url: appInfo.clone_url
+            ssh_url: appInfo.clone_url
           }
         }
       }
