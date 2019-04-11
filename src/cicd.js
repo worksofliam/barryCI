@@ -326,32 +326,68 @@ async function release_event(req, res) {
   }
 }
 
-async function cloneRepo(httpsURI, repoName, branch) {
+async function cloneRepo(cloneURI, repoName, branch) {
   if (repoName.indexOf('/') >= 0)
     repoName = repoName.split('/')[1];
 
   console.log('Clone for ' + repoName + ' starting.');
-  var repoDir = await tmpDir();
 
-  var clone_string = 'git clone --depth=1 ';
+  var key = repoName + '-' + branch;
+  if (config.clones === undefined)
+    config.clones = {};
 
-  if (branch !== undefined) 
-    clone_string += '--single-branch -b ' + branch + ' ';
+  var repoDir, clone_string;
 
-  clone_string += httpsURI;
+  if (config.clones[key] === undefined) {
+    //Not been cloned before
+    config.clones[key] = await tmpDir();
 
-  try {
-    var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
-    repoDir = path.join(repoDir, repoName);
-    
-    console.log('Cloned ' + repoName + ': ' + repoDir);
-    return Promise.resolve(repoDir);
-    
-  } catch (error) {
-    console.log('Clone failed for ' + repoName + ': ');
-    console.log(stderr);
-    return Promise.reject(stderr);
+    clone_string = 'git clone --depth=1 ';
+    if (branch !== undefined) 
+      clone_string += '--single-branch -b ' + branch + ' ';
+    clone_string += cloneURI;
+
+    repoDir = config.clones[key];
+
+    try {
+      var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
+      repoDir = path.join(repoDir, repoName);
+      config.clones[key] = repoDir; //Append repoName
+
+      Config.save();
+      
+      console.log('Cloned ' + repoName + ': ' + repoDir);
+      return Promise.resolve(repoDir);
+      
+    } catch (error) {
+      console.log('Clone failed for ' + repoName + ': ');
+      console.log('Local directory: ' + repoDir);
+      console.log(stderr);
+      delete config.clones[key];
+      return Promise.reject(stderr);
+    }
+
+  } else {
+    //Repo already exists, just pull
+    repoDir = config.clones[key];
+    clone_string = 'git pull'
+
+    try {
+      var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
+      
+      console.log('Pulled ' + repoName + ': ' + repoDir);
+      return Promise.resolve(repoDir);
+      
+    } catch (error) {
+      console.log('Pull failed for ' + repoName + ': ');
+      console.log('Local directory: ' + repoDir);
+      console.log(stderr);
+      return Promise.reject(stderr);
+    }
   }
+
+
+
 }
 
 async function buildLocal(appInfo, appID, branch, commit) {
