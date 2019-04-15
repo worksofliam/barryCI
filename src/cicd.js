@@ -180,7 +180,7 @@ async function push_event(req, res) {
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch);
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch, appID);
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -240,7 +240,7 @@ async function release_event(req, res) {
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1], appInfo.release_branch);
+    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1], appInfo.release_branch, appID);
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -326,7 +326,7 @@ async function release_event(req, res) {
   }
 }
 
-async function cloneRepo(cloneURI, repoName, branch) {
+async function cloneRepo(cloneURI, repoName, branch, appID) {
   if (repoName.indexOf('/') >= 0)
     repoName = repoName.split('/')[1];
 
@@ -338,6 +338,14 @@ async function cloneRepo(cloneURI, repoName, branch) {
 
   var repoDir, clone_string;
 
+  //If the user wants to pull a specific project, then use that directory.
+  if (appID !== undefined) {
+    if (config.repos[appID] !== undefined) {
+      config.clones[key] = config.repos[appID].deploy_dir;
+    }
+  }
+
+  //If directory not cloned before, clone it!
   if (config.clones[key] === undefined) {
     //Not been cloned before
     config.clones[key] = await tmpDir();
