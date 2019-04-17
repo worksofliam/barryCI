@@ -33,6 +33,7 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
   if (req.body.auth === "") req.body.auth = undefined;
   if (req.body.secret === "") req.body.secret = undefined;
   if (req.body.clone_url === "") req.body.clone_url = undefined;
+  if (req.body.deploy_dir === "") req.body.deploy_dir = undefined;
 
   if (req.body.clone_url !== undefined) {
     var parts = req.body.clone_url.split('/');
@@ -45,7 +46,8 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
     github: req.body.auth,
     secret: req.body.secret,
     clone_url: req.body.clone_url,
-    repo: req.body.repo
+    repo: req.body.repo,
+    deploy_dir: req.body.deploy_dir
   }
 
   if (id === "" || repo.name === "") {
