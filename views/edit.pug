@@ -16,6 +16,8 @@ include ./head.pug
       .mb-4
 
       form(method='post', autocomplete='false')
+        input(autocomplete='false', name='hidden', type='text', style='display:none;')
+        
         if use_id !== undefined
           .form-row
             .form-group
