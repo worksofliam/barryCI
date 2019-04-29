@@ -49,7 +49,7 @@ include ./head.pug
         .form-row
           .form-group
             label Local repository
-            input.form-control(type='text', name='deploy_dir', value=repo.deploy_dir, placeholder='')
+            input.form-control(type='text', name='deploy_dir', value=repo.deploy_dir, placeholder='/...')
             small.form-text.text-muted Provide the local git repository if it already exists. Use for PHP, Python, Node.js, etc. Leave blank otherwise.
         
         hr
