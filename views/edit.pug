@@ -15,7 +15,7 @@ include ./head.pug
       
       .mb-4
 
-      form(method='post')
+      form(method='post', autocomplete='false')
         if use_id !== undefined
           .form-row
             .form-group
@@ -49,7 +49,7 @@ include ./head.pug
         .form-row
           .form-group
             label Local repository
-            input.form-control(type='text', name='deploy_dir', value=repo.deploy_dir, placeholder='/...')
+            input.form-control(type='text', name='deploy_dir', value=repo.deploy_dir)
             small.form-text.text-muted Provide the local git repository if it already exists. Use for PHP, Python, Node.js, etc. Leave blank otherwise.
         
         hr
@@ -57,13 +57,13 @@ include ./head.pug
         .form-row
           .form-group
             label GitHub Auth Key
-            input.form-control(type='password', name='auth', value=repo.github, placeholder='')
+            input.form-control(type='password', name='auth', value=repo.github)
             small.form-text.text-muted This To be used if you want build status results posted back to GitHub (in real time).
 
         .form-row
           .form-group
             label Secret
-            input.form-control(type='password', name='secret', value=repo.secret, placeholder='')
+            input.form-control(type='password', name='secret', value=repo.secret)
             small.form-text.text-muted This Recommended so no one else can trigger unwanted builds.
 
         hr
