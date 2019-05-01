@@ -46,7 +46,7 @@ var buildMessages = buildMessagesConfig.dataSet;
 
 //**********************************************
 
-const IN_PROGRESS = 0, FAILED = 1, SUCCESSFUL = 2;
+const IN_PROGRESS = 0, FAILED = 1, SUCCESSFUL = 2, NOSTART = 3;
 
 //**********************************************
 
@@ -179,8 +179,18 @@ async function push_event(req, res) {
 
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
+  var result;
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch, appID);
+    result = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch, appID);
+    switch (result.success) {
+      case SUCCESSFUL:
+        appInfo.repoDir = result.repoDir;
+        break;
+      case NOSTART:
+        await updateStatus(appInfo, appID, "", "not-started", result.message);
+        appInfo.repoDir = undefined;
+        break;
+    }
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -239,8 +249,18 @@ async function release_event(req, res) {
 
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
+  var result;
   try {
-    appInfo.repoDir = await cloneRepo(appInfo.clone_url, appInfo.repo.split('/')[1], appInfo.release_branch, appID);
+    result = await cloneRepo(appInfo.clone_url, appInfo.repo, appInfo.eventBranch, appID);
+    switch (result.success) {
+      case SUCCESSFUL:
+        appInfo.repoDir = result.repoDir;
+        break;
+      case NOSTART:
+        await updateStatus(appInfo, appID, "", "not-started", result.message);
+        appInfo.repoDir = undefined;
+        break;
+    }
   } catch (error) {
     await updateStatus(appInfo, appID, "", "failure", "Failed to clone.");
     console.log('----------------');
@@ -326,6 +346,14 @@ async function release_event(req, res) {
   }
 }
 
+/**
+ * 
+ * @param {string} cloneURI 
+ * @param {string} repoName 
+ * @param {string} branch 
+ * @param {object} appID 
+ * @returns {object} success: number, message: string, repoDir: string
+ */
 async function cloneRepo(cloneURI, repoName, branch, appID) {
   if (repoName.indexOf('/') >= 0)
     repoName = repoName.split('/')[1];
@@ -341,7 +369,13 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
   //If the user wants to pull a specific project, then use that directory.
   if (appID !== undefined) {
     if (config.repos[appID] !== undefined) {
-      config.clones[key] = config.repos[appID].deploy_dir;
+      if (config.repos[appID].specific_dirs === true) { //Yes, clone the app
+        if (config.repos[appID].deploy_dirs[branch] !== undefined) { //But only clone if we want to support this branch
+          config.clones[key] = config.repos[appID].deploy_dirs[branch];
+        } else {
+          return Promise.resolve({success: NOSTART, message: 'Repo branch not enabled.'});
+        }
+      }
     }
   }
 
@@ -365,7 +399,7 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
       Config.save();
       
       console.log('Cloned ' + repoName + ': ' + repoDir);
-      return Promise.resolve(repoDir);
+      return Promise.resolve({success: SUCCESSFUL, repoDir: repoDir});
       
     } catch (error) {
       console.log('Clone failed for ' + repoName + ': ');
@@ -384,7 +418,7 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
       var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
       
       console.log('Pulled ' + repoName + ': ' + repoDir);
-      return Promise.resolve(repoDir);
+      return Promise.resolve({success: SUCCESSFUL, repoDir: repoDir});
       
     } catch (error) {
       console.log('Pull failed for ' + repoName + ': ');
@@ -393,8 +427,6 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
       return Promise.reject(stderr);
     }
   }
-
-
 
 }
 

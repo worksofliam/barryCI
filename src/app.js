@@ -33,7 +33,6 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
   if (req.body.auth === "") req.body.auth = undefined;
   if (req.body.secret === "") req.body.secret = undefined;
   if (req.body.clone_url === "") req.body.clone_url = undefined;
-  if (req.body.deploy_dir === "") req.body.deploy_dir = undefined;
 
   if (req.body.clone_url !== undefined) {
     var parts = req.body.clone_url.split('/');
@@ -47,7 +46,17 @@ router.post(['/edit/:id', '/edit', '/create'], async (req, res) => {
     secret: req.body.secret,
     clone_url: req.body.clone_url,
     repo: req.body.repo,
-    deploy_dir: req.body.deploy_dir
+
+    specific_dirs: (req.body.specific_dirs !== undefined),
+    deploy_dirs: {}
+  }
+
+  if (repo.specific_dirs) {
+    for (var key in req.body) {
+      if (key.indexOf('db') === 0) {
+        repo.deploy_dirs[req.body[key]] = req.body['dp-' + key.split('-')[1]];
+      }
+    }
   }
 
   if (id === "" || repo.name === "") {
@@ -68,7 +77,8 @@ router.get(['/edit/:id', '/edit', '/create'], async (req, res) => {
   if (id !== undefined) {
     params.id = id;
     params.githuburl = config.address + ':' + config.port + '/work/' + id;
-    params.buildurl = config.address + ':' + config.port + '/app/build/' + id + '/master';
+    params.buildurl = config.address + ':' + config.port + '/build/' + id + '/master';
+    
   } else {
     params.use_id = makeid();
   }
