@@ -1,5 +1,7 @@
 include ./head.pug
 
+script(defer, src="/public/edit.js")
+
 // https://getbootstrap.com/docs/3.3/css/#grid-example-basic
 
 .container
@@ -48,9 +50,34 @@ include ./head.pug
 
         .form-row
           .form-group
-            label Local repository
-            input.form-control(type='text', name='deploy_dir', value=repo.deploy_dir)
-            small.form-text.text-muted Provide the local git repository if it already exists. Use for PHP, Python, Node.js, etc. Leave blank otherwise.
+            label Pull into specific directories?
+            input.form-control(type='checkbox', id='specific_dirs' name='specific_dirs', checked=repo.specific_dirs onclick='handle_dirs()')
+            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below.
+
+        #deploy_dirs
+          .form-row
+
+              table#branch_dirs(class='table')
+                thead
+                  tr
+                    th Branch
+                    th Directory
+                    th
+                      button.btn.btn-outline-success(onclick='add_branch_dir()', type='button', class='btn-sm') 
+                        i(class='fa fa-rocket').mr-2
+                        | Add branch
+                tbody
+                  if repo.deploy_dirs !== undefined
+                    each dir, branch in repo.deploy_dirs
+                      tr(id='b' + branch)
+                        td
+                          input.form-control(type='text', name='db-' + branch, value=branch)
+                        td
+                          input.form-control(type='text', name='dp-' + branch, value=repo.deploy_dirs[branch])
+                        td
+                          button.btn.btn-outline-secondary(type='button', class='btn-sm', onclick='remove_branch("' + branch + '")')
+                            i(class='fa fa-times').mr-2
+                            | Remove
         
         hr
 

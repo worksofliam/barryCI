@@ -341,7 +341,13 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
   //If the user wants to pull a specific project, then use that directory.
   if (appID !== undefined) {
     if (config.repos[appID] !== undefined) {
-      config.clones[key] = config.repos[appID].deploy_dir;
+      if (config.repos[appID].specific_dirs === true) { //Yes, clone the app
+        if (config.repos[appID].deploy_dirs[branch] !== undefined) { //But only clone if we want to support this branch
+          config.clones[key] = config.repos[appID].deploy_dirs[branch];
+        } else {
+          return Promise.reject('App branch not supported.');
+        }
+      }
     }
   }
 
@@ -393,8 +399,6 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
       return Promise.reject(stderr);
     }
   }
-
-
 
 }
 
