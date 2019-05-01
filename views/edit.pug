@@ -75,7 +75,7 @@ script(defer, src="/public/edit.js")
                         td
                           input.form-control(type='text', name='dp-' + branch, value=repo.deploy_dirs[branch])
                         td
-                          button.btn.btn-outline-secondary(type='button', class='btn-sm', onclick='remove_branch("' + branch + '")')
+                          button.btn.btn-outline-secondary(type='button', class='btn', onclick='remove_branch("' + branch + '")')
                             i(class='fa fa-times').mr-2
                             | Remove
         

@@ -22,7 +22,7 @@ function add_branch_dir() {
   cell = tableRow.insertCell(1);
   cell.innerHTML = '<input class="form-control" type="text" name="dp-' + tableRows + '" value="/repos/dir">';
   cell = tableRow.insertCell(2);
-  cell.innerHTML = '<button class="btn btn-outline-secondary btn-sm" type="button" onclick="remove_branch(\'' + tableRows + '\')"><i class="fa fa-times mr-2"></i>Remove</button>';
+  cell.innerHTML = '<button class="btn btn-outline-secondary btn" type="button" onclick="remove_branch(\'' + tableRows + '\')"><i class="fa fa-times mr-2"></i>Remove</button>';
 }
 
 function remove_branch(branch) {
