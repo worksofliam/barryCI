@@ -52,7 +52,7 @@ script(defer, src="/public/edit.js")
           .form-group
             label Pull into specific directories?
             input.form-control(type='checkbox', id='specific_dirs' name='specific_dirs', checked=repo.specific_dirs onclick='handle_dirs()')
-            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below. Exists to cater for applications that need to run in specific directories (like PHP or Node.js apps).
+            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below. Exists to cater for applications that need to run in specific directories (like PHP or Node.js apps). With this option disabled, random directories will be created in the system temporary directory for each branch.
 
         #deploy_dirs
           .form-row
@@ -112,11 +112,11 @@ script(defer, src="/public/edit.js")
               th Link
           tbody
             tr
-              td URL used for the (push and release only) webhook.
+              td Push and release GitHub webhook.
               td
                 code=githuburl
             tr
-              td Call this URL to invoke a build of the application.
+              td Invoke a build of the application. (POST)
               td
                 code=buildurl
 
