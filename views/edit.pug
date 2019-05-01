@@ -52,7 +52,7 @@ script(defer, src="/public/edit.js")
           .form-group
             label Pull into specific directories?
             input.form-control(type='checkbox', id='specific_dirs' name='specific_dirs', checked=repo.specific_dirs onclick='handle_dirs()')
-            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below.
+            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below. Exists to cater for applications that need to run in specific directories (like PHP or Node.js apps).
 
         #deploy_dirs
           .form-row
@@ -85,13 +85,13 @@ script(defer, src="/public/edit.js")
           .form-group
             label GitHub Auth Key
             input.form-control(type='password', name='auth', value=repo.github)
-            small.form-text.text-muted This To be used if you want build status results posted back to GitHub (in real time).
+            small.form-text.text-muted To be used if you want build status results posted back to GitHub (in real time).
 
         .form-row
           .form-group
             label Secret
             input.form-control(type='password', name='secret', value=repo.secret)
-            small.form-text.text-muted This Recommended so no one else can trigger unwanted builds.
+            small.form-text.text-muted Recommended so no one else can trigger unwanted builds. Must match the secret setup in the repository webhooks.
 
         hr
 
