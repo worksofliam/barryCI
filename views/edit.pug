@@ -52,7 +52,7 @@ script(defer, src="/public/edit.js")
           .form-group
             label Pull into specific directories?
             input.form-control(type='checkbox', id='specific_dirs' name='specific_dirs', checked=repo.specific_dirs onclick='handle_dirs()')
-            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below. Exists to cater for applications that need to run in specific directories (like PHP or Node.js apps). With this option disabled, random directories will be created in the system temporary directory for each branch.
+            small.form-text.text-muted Enable this if the repository already exists in a specific directory. Set the specific branches below. Exists to cater for applications that need to run in specific directories (like PHP or Node.js apps). With this option disabled, random directories will be created in the system temporary directory for each branch. This can also define specific branches to allow (those not included would be ignored).
 
         #deploy_dirs
           .form-row

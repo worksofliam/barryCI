@@ -1,4 +1,3 @@
-
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const spawn = require('child_process').spawn;
@@ -6,7 +5,8 @@ const crypto = require('crypto');
 const path = require('path');
 var fileExists = require('file-exists-promise')
 
-var express = require('express'), router = express.Router();
+var express = require('express'),
+  router = express.Router();
 
 var tmp = require('tmp');
 var tmpDir = util.promisify(tmp.dir);
@@ -46,7 +46,10 @@ var buildMessages = buildMessagesConfig.dataSet;
 
 //**********************************************
 
-const IN_PROGRESS = 0, FAILED = 1, SUCCESSFUL = 2, NOSTART = 3;
+const IN_PROGRESS = 0,
+  FAILED = 1,
+  SUCCESSFUL = 2,
+  NOSTART = 3;
 
 //**********************************************
 
@@ -55,7 +58,9 @@ router.get('/result/:appID/:commit', async (req, res) => {
   var commit = req.params.commit;
 
   if (buildMessages[id + commit] !== undefined) {
-    var body = {info: buildMessages[id + commit]};
+    var body = {
+      info: buildMessages[id + commit]
+    };
 
     if (req.session.username !== undefined)
       body.username = req.session.username;
@@ -100,7 +105,9 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
         console.log(' >   Stored secret: "' + secret + '"');
         console.log(' > X-Hub-Signature: "' + req.headers['x-hub-signature'] + '"');
         console.log(' > Calc..Signature: "' + calculated_signature + '"');
-        updateStatus({repo: 'N/A'}, appID, '', 'failed', 'Signature auth failed.');
+        updateStatus({
+          repo: 'N/A'
+        }, appID, '', 'failed', 'Signature auth failed.');
         isAllowed = false;
       }
     }
@@ -114,13 +121,19 @@ router.post(['/work/:id', '/push/:id'], async (req, res) => {
           release_event(req, res);
           break;
         default:
-          res.json({message: 'Not handling ' + event_type + ' event.'});
+          res.json({
+            message: 'Not handling ' + event_type + ' event.'
+          });
       }
     } else {
-      res.json({message: 'Secrets do not match.'});
+      res.json({
+        message: 'Secrets do not match.'
+      });
     }
   } else {
-    res.json({message: 'Local configuration not found.'});
+    res.json({
+      message: 'Local configuration not found.'
+    });
   }
 });
 
@@ -146,21 +159,27 @@ router.post('/build/:id/:branch', async (req, res) => {
         }
       }
 
-      res.json({message: 'Build starting for ' + appInfo.name + '-' + branch + '.'});
+      res.json({
+        message: 'Build starting for ' + appInfo.name + '-' + branch + '.'
+      });
       push_event(input);
 
     } else {
-      res.json({message: 'Clone URL missing from ' + appInfo.name + '.'});
+      res.json({
+        message: 'Clone URL missing from ' + appInfo.name + '.'
+      });
     }
   } else {
-    res.json({message: 'Build ID does not exist.'});
+    res.json({
+      message: 'Build ID does not exist.'
+    });
   }
 });
 
 async function push_event(req, res) {
   var appID = req.params.id;
   var commit = req.body.after;
-  
+
   var appInfo = Object.assign({}, config.repos[appID]);
 
   appInfo.repo = req.body.repository.full_name;
@@ -170,12 +189,16 @@ async function push_event(req, res) {
   appInfo.eventBranch = branchFromRef(req.body.ref);
 
   if (isTagPush(req.body.ref)) { //Don't build here if is tag, seperate release tag
-    res.json({message: 'Build for ' + appInfo.repo + ' is not starting (ref).'});
+    res.json({
+      message: 'Build for ' + appInfo.repo + ' is not starting (ref).'
+    });
     return;
   }
 
   if (res !== undefined)
-    res.json({message: 'Build for ' + appInfo.repo + ' starting.'});
+    res.json({
+      message: 'Build for ' + appInfo.repo + ' starting.'
+    });
 
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
@@ -203,7 +226,9 @@ async function push_event(req, res) {
   if (appInfo.repoDir !== undefined) {
     var configFound = false;
     try {
-      await addRepoSetup(appInfo, {branch: appInfo.eventBranch});
+      await addRepoSetup(appInfo, {
+        branch: appInfo.eventBranch
+      });
       configFound = true;
     } catch (error) {
       console.log('----------------');
@@ -240,12 +265,14 @@ async function release_event(req, res) {
   appInfo.repo = req.body.repository.full_name;
   appInfo.clone_url = req.body.repository.ssh_url;
   appInfo.sender = req.body.sender;
-  
+
   appInfo.release_id = req.body.release.id;
   appInfo.release_branch = req.body.release.target_commitish;
   appInfo.eventBranch = appInfo.release_branch;
 
-  res.json({message: 'Release for ' + appInfo.repo + ' starting.'});
+  res.json({
+    message: 'Release for ' + appInfo.repo + ' starting.'
+  });
 
   await updateStatus(appInfo, appID, "", "middle", "Cloning repository.");
 
@@ -272,7 +299,9 @@ async function release_event(req, res) {
 
   if (appInfo.repoDir !== undefined) {
     try {
-      await addRepoSetup(appInfo, {branch: appInfo.release_branch});
+      await addRepoSetup(appInfo, {
+        branch: appInfo.release_branch
+      });
     } catch (error) {
       console.log('----------------');
       console.log('No barryci.json file found in ' + appInfo.repo);
@@ -281,65 +310,67 @@ async function release_event(req, res) {
     }
 
     if (appInfo.release !== undefined) {
-      if (appInfo.release.upload_file !== undefined) {
-        appInfo.upload_file = path.join(appInfo.repoDir, appInfo.release.upload_file);
-
-        //First let's try and run our build if we need to do_build
-        var result = {status: SUCCESSFUL}
-        if (appInfo.release.do_build) {
-          await updateStatus(appInfo, appID, commit, "pending", "Building application");
-          result = await buildLocal(appInfo, appID, appInfo.release_branch, commit);
-          await updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
-        }
-
-        //If we don't need to be or it was successful...
-        if (result.status === SUCCESSFUL) {
-          try {
-            await updateStatus(appInfo, appID, commit, "pending", "Release starting.");
+      //First let's try and run our build if we need to do_build
+      var result = {
+        status: SUCCESSFUL
+      }
       
-            //Run the post_commands
-            if (appInfo.release.post_commands.length > 0) {
-              await updateStatus(appInfo, appID, commit, "pending", "Release build starting.");
+      if (appInfo.release.do_build) {
+        await updateStatus(appInfo, appID, commit, "pending", "Building application");
+        result = await buildLocal(appInfo, appID, appInfo.release_branch, commit);
+        await updateStatus(appInfo, appID, commit, (result.status == SUCCESSFUL ? "success" : "failure"), "Build " + (result.status == SUCCESSFUL ? "successful" : "failed") + '.');
+      }
 
-              for (var i in appInfo.release.post_commands) {
-                command = appInfo.release.post_commands[i];
-                await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
-              }
+      //If we don't need to be or it was successful...
+      if (result.status === SUCCESSFUL) {
+        try {
+          await updateStatus(appInfo, appID, commit, "pending", "Release starting.");
 
-              await updateStatus(appInfo, appID, commit, "success", "Release build finished.");
+          //Run the post_commands
+          if (appInfo.release.post_commands.length > 0) {
+            await updateStatus(appInfo, appID, commit, "pending", "Release build starting.");
+
+            for (var i in appInfo.release.post_commands) {
+              command = appInfo.release.post_commands[i];
+              await execPromise(command.command, command.args || [], {
+                cwd: appInfo.repoDir,
+                appID: appID,
+                commit: commit
+              });
             }
 
-            //Then upload the file if it exists!
-            if (appInfo.upload_file !== undefined) {
-              try {
-                await fileExists(appInfo.upload_file);
-                
-                await updateStatus(appInfo, appID, commit, "pending", "Release upload started.");
-                if (await uploadGitHubRelease(appInfo)) {
-                  await updateStatus(appInfo, appID, commit, "success", "Release created.");
-                } else {
-                  await updateStatus(appInfo, appID, commit, "failure", "Release upload failed.");
-                }
-              } catch (err) {
-                await updateStatus(appInfo, appID, commit, "failure", "Build failed for release: no file.");
-              }
-
-            } else {
-              await updateStatus(appInfo, appID, commit, "pending", "Release finished.");
-            }
-
-          } catch (err) {
-            sockets.results.pushStandardContent(appID, commit, err);
-            await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
+            await updateStatus(appInfo, appID, commit, "success", "Release build finished.");
           }
 
-        } else {
+          //Then upload the file if it exists!
+          if (appInfo.release.upload_file !== undefined) {
+            appInfo.upload_file = path.join(appInfo.repoDir, appInfo.release.upload_file);
+            try {
+              await fileExists(appInfo.upload_file);
+
+              await updateStatus(appInfo, appID, commit, "pending", "Release upload started.");
+              if (await uploadGitHubRelease(appInfo)) {
+                await updateStatus(appInfo, appID, commit, "success", "Release created.");
+              } else {
+                await updateStatus(appInfo, appID, commit, "failure", "Release upload failed.");
+              }
+            } catch (err) {
+              await updateStatus(appInfo, appID, commit, "failure", "Build failed for release: no file.");
+            }
+
+          } else {
+            await updateStatus(appInfo, appID, commit, "pending", "Release finished.");
+          }
+
+        } catch (err) {
+          sockets.results.pushStandardContent(appID, commit, err);
           await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
         }
 
       } else {
-        await updateStatus(appInfo, appID, "", "not-started", "Release file not defined in barryci.json.");
+        await updateStatus(appInfo, appID, "", "failure", "Build failed for release.");
       }
+
     } else {
       await updateStatus(appInfo, appID, "", "not-started", "Release not defined in barryci.json.");
     }
@@ -373,7 +404,10 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
         if (config.repos[appID].deploy_dirs[branch] !== undefined) { //But only clone if we want to support this branch
           config.clones[key] = config.repos[appID].deploy_dirs[branch];
         } else {
-          return Promise.resolve({success: NOSTART, message: 'Repo branch not enabled.'});
+          return Promise.resolve({
+            success: NOSTART,
+            message: 'Repo branch not enabled.'
+          });
         }
       }
     }
@@ -385,22 +419,30 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
     config.clones[key] = await tmpDir();
 
     clone_string = 'git clone --depth=1 ';
-    if (branch !== undefined) 
+    if (branch !== undefined)
       clone_string += '--single-branch -b ' + branch + ' ';
     clone_string += cloneURI;
 
     repoDir = config.clones[key];
 
     try {
-      var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
+      var {
+        stdout,
+        stderr
+      } = await exec(clone_string, {
+        cwd: repoDir
+      });
       repoDir = path.join(repoDir, repoName);
       config.clones[key] = repoDir; //Append repoName
 
       Config.save();
-      
+
       console.log('Cloned ' + repoName + ': ' + repoDir);
-      return Promise.resolve({success: SUCCESSFUL, repoDir: repoDir});
-      
+      return Promise.resolve({
+        success: SUCCESSFUL,
+        repoDir: repoDir
+      });
+
     } catch (error) {
       console.log('Clone failed for ' + repoName + ': ');
       console.log('Local directory: ' + repoDir);
@@ -415,11 +457,19 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
     clone_string = 'git pull'
 
     try {
-      var { stdout, stderr } = await exec(clone_string, { cwd: repoDir });
-      
+      var {
+        stdout,
+        stderr
+      } = await exec(clone_string, {
+        cwd: repoDir
+      });
+
       console.log('Pulled ' + repoName + ': ' + repoDir);
-      return Promise.resolve({success: SUCCESSFUL, repoDir: repoDir});
-      
+      return Promise.resolve({
+        success: SUCCESSFUL,
+        repoDir: repoDir
+      });
+
     } catch (error) {
       console.log('Pull failed for ' + repoName + ': ');
       console.log('Local directory: ' + repoDir);
@@ -431,7 +481,7 @@ async function cloneRepo(cloneURI, repoName, branch, appID) {
 }
 
 async function buildLocal(appInfo, appID, branch, commit) {
-  
+
   var stage = '';
   var timers = [Date.now(), null];
 
@@ -467,7 +517,11 @@ async function buildLocal(appInfo, appID, branch, commit) {
 
         for (var i in appInfo.build) {
           command = appInfo.build[i];
-          stdout = await execPromise(command.command, command.args || [], { cwd: appInfo.repoDir, appID: appID, commit: commit });
+          stdout = await execPromise(command.command, command.args || [], {
+            cwd: appInfo.repoDir,
+            appID: appID,
+            commit: commit
+          });
         }
         stderr = undefined; //No error?
 
@@ -479,7 +533,7 @@ async function buildLocal(appInfo, appID, branch, commit) {
   } catch (err) {
     stderr = err;
   }
-  
+
   console.log('Build finished for ' + appInfo.repo + '-' + branch + ': ' + (stderr ? "failed" : "successful"));
 
   if (typeof stderr === 'object') {
@@ -532,7 +586,7 @@ async function updateStatus(appInfo, appID, commit, status, text) {
   if (commit !== "")
     url = config.address + ':' + config.port + '/result/' + appID + '/' + commit
 
-  var key = appID+appInfo.eventBranch;
+  var key = appID + appInfo.eventBranch;
 
   statuses[key] = {
     name: appInfo.name,
