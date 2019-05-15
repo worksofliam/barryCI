@@ -359,7 +359,7 @@ async function release_event(req, res) {
             }
 
           } else {
-            await updateStatus(appInfo, appID, commit, "pending", "Release finished.");
+            await updateStatus(appInfo, appID, commit, "success", "Release finished.");
           }
 
         } catch (err) {
