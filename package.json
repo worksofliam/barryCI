@@ -10,7 +10,7 @@
     "express-session": "^1.15.6",
     "file-exists-promise": "^1.0.2",
     "octonode": "^0.9.5",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "tmp": "0.0.33",
     "ws": "^6.1.2"
   },
