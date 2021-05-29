@@ -12,7 +12,7 @@
     "octonode": "^0.9.5",
     "pug": "^2.0.3",
     "tmp": "0.0.33",
-    "ws": "^6.1.2"
+    "ws": "^7.4.6"
   },
   "devDependencies": {},
   "scripts": {
